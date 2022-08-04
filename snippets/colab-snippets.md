@@ -4,6 +4,7 @@
 # !pip3 install tensorflow==2.8.2 tensorflow-gpu==2.8.2 tensorflow-datasets -U
 # !pip3 install -U seaborn matplotlib
 # !pip3 install pythainlp attacut
+# !pip3 install dvc
 ```
 
 # numpy and pandas
