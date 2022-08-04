@@ -42,8 +42,9 @@ class TextCleaner:
 
     def _remove_urls(self, text: str) -> str:
         pattern = re.compile(
-            r"(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
+            r"(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{0,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
         )
+        # pattern = re.compile(r"https?:\/\/.*?[\s+]")
         return re.sub(pattern, "", text)
 
     def _remove_punctuations(self, text: str) -> str:
