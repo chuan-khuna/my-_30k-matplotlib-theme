@@ -53,17 +53,14 @@ def test_replace_starting_and_ending_space(cleaner):
     assert cleaner._replace_start_end_spaces(text) == expected_text
 
 
-def test_replace_urls(cleaner):
-    texts_with_urls = [
-        "https://www.google.co.th/",
-        "https://github.com/PyThaiNLP/pythainlp ",
-    ]
-    cleaned_texts = []
-    expected_cleaned_texts = ["", " "]
-    for text in texts_with_urls:
-        cleaned_texts.append(cleaner._remove_urls(text))
-
-    assert cleaned_texts == expected_cleaned_texts
+@pytest.mark.parametrize('text,expected',
+                         [("https://www.google.co.th/", ""),
+                          ("https://github.com/PyThaiNLP/pythainlp ", " "),
+                          ("RT: @someone https://twitter.com/home", "RT: @someone "),
+                          ("short twitter url https://t.co/", "short twitter url "),
+                          ("texthttps://twitter.com/home url", 'text url')])
+def test_replace_urls(cleaner, text, expected):
+    assert cleaner._remove_urls(text) == expected
 
 
 def test_clean_punctuations(cleaner):
@@ -92,10 +89,7 @@ def test_clean_punct(cleaner):
     expected = "text to clean with punctuations userid pssw0rd"
     assert cleaner.clean(text) == expected
     cleaner.remove_punctuations = False
-    assert (
-        cleaner.clean(text)
-        == "!text to clean with~ 'punctuat_ions!'*() @userid p@ssw0rd"
-    )
+    assert (cleaner.clean(text) == "!text to clean with~ 'punctuat_ions!'*() @userid p@ssw0rd")
 
 
 def test_clean_punct_if_it_is_set_to_false(cleaner):
