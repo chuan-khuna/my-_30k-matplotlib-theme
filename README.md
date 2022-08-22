@@ -30,5 +30,5 @@ from utils.vis_utils import *
 ## To clone utils
 
 ```txt
-git clone https://github.com/chuan-khuna/my-python-utils.git tmp && cp -R tmp/utils
+git clone https://github.com/chuan-khuna/my-python-utils.git tmp && cp -R tmp/utils ./
 ```
