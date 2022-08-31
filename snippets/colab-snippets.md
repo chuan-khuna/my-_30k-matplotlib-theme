@@ -44,9 +44,6 @@ seed_ = 20200218
 tf.random.set_seed(seed_)
 np.random.seed(seed_)
 
-# tensorflow image utils
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 from sklearn.metrics import confusion_matrix, classification_report
 ```
 
@@ -55,9 +52,6 @@ from sklearn.metrics import confusion_matrix, classification_report
 font_dir = [f"{google_drive_path}/code_assets/fonts/"]
 for font in matplotlib.font_manager.findSystemFonts(font_dir):
     matplotlib.font_manager.fontManager.addfont(font)
-
-# import my visualisation utils
-from gdrive.MyDrive.code_assets.vis_utils import *
 
 # Override Metric with Google Outfit
 # matplotlib.rcParams['font.family'] = 'outfit'
