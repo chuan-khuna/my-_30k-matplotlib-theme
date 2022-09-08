@@ -64,3 +64,16 @@ for font in matplotlib.font_manager.findSystemFonts(font_dir):
 # project_path = "/Colab Notebooks/..."
 # os.chdir(google_drive_path + project_path)
 ```
+
+# Info
+
+```py
+tf.config.list_physical_devices('GPU')
+
+for device in tf.config.experimental.list_physical_devices('GPU'):
+    tf.config.experimental.set_memory_growth(device, True)
+```
+
+```txt
+!nvidia-smi
+```
