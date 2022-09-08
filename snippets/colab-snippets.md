@@ -1,5 +1,7 @@
 # Install TF
 
+Use `-q`
+
 ```txt
 # !pip3 install tensorflow==2.8.2 tensorflow-gpu==2.8.2 tensorflow-datasets -U
 # !pip3 install -U seaborn matplotlib
@@ -32,6 +34,15 @@ drive.mount('/content/gdrive')
 google_drive_path = "/content/gdrive/MyDrive/"
 ```
 
+Set project path
+
+```py
+# project_path = "..."
+# os.chdir(google_drive_path + project_path)
+# os.listdir("./")
+```
+
+
 # Tensorflow
 
 ```py
@@ -55,11 +66,4 @@ for font in matplotlib.font_manager.findSystemFonts(font_dir):
 
 # Override Metric with Google Outfit
 # matplotlib.rcParams['font.family'] = 'outfit'
-```
-
-# Set project path
-
-```py
-# change directory to the project path
-# os.chdir(google_drive_path + "...")
 ```
