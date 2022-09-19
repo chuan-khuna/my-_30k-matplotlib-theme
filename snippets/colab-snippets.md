@@ -32,6 +32,14 @@ drive.mount('/content/gdrive')
 google_drive_path = "/content/gdrive/MyDrive/"
 ```
 
+## Set project path
+
+```py
+# change directory to the project path
+# project_path = "/Colab Notebooks/..."
+# os.chdir(google_drive_path + project_path)
+```
+
 # Tensorflow
 
 ```py
@@ -57,13 +65,6 @@ for font in matplotlib.font_manager.findSystemFonts(font_dir):
 # matplotlib.rcParams['font.family'] = 'outfit'
 ```
 
-# Set project path
-
-```py
-# change directory to the project path
-# project_path = "/Colab Notebooks/..."
-# os.chdir(google_drive_path + project_path)
-```
 
 # Info
 
