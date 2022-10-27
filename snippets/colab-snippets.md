@@ -34,14 +34,14 @@ drive.mount('/content/gdrive')
 google_drive_path = "/content/gdrive/MyDrive/"
 ```
 
-Set project path
+## Set project path
 
 ```py
-# project_path = "..."
+# change directory to the project path
+# project_path = "/Colab Notebooks/..."
 # os.chdir(google_drive_path + project_path)
 # os.listdir("./")
 ```
-
 
 # Tensorflow
 
@@ -66,4 +66,17 @@ for font in matplotlib.font_manager.findSystemFonts(font_dir):
 
 # Override Metric with Google Outfit
 # matplotlib.rcParams['font.family'] = 'outfit'
+```
+
+# Info
+
+```py
+tf.config.list_physical_devices('GPU')
+
+for device in tf.config.experimental.list_physical_devices('GPU'):
+    tf.config.experimental.set_memory_growth(device, True)
+```
+
+```txt
+!nvidia-smi
 ```
