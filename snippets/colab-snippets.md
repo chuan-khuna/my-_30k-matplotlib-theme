@@ -80,3 +80,7 @@ for device in tf.config.experimental.list_physical_devices('GPU'):
 ```txt
 !nvidia-smi
 ```
+
+# Use TQDM with notebook
+
+https://tqdm.github.io/docs/notebook/
