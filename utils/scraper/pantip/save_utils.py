@@ -11,7 +11,13 @@ def save_comments_json(scrape_result: list[dict], output_folder: str = "."):
     """
 
     comments = []
-    topic_id = scrape_result[0]['paging']['topic_id']
+
+    # check if a topic have comments
+    # todo: refactor, why the api doesn't return comments in that topic
+    if len(scrape_result) > 0:
+        topic_id = scrape_result[0]['paging']['topic_id']
+    else:
+        return
 
     for batch in scrape_result:
         if 'comments' in batch.keys():
