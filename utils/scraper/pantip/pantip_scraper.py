@@ -1,6 +1,6 @@
 import requests
 import json
-import numpy as np
+import random
 
 
 def _rotate_agent() -> str:
@@ -12,7 +12,7 @@ def _rotate_agent() -> str:
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     ]
-    return np.random.choice(agents)
+    return random.choice(agents)
 
 
 def scrape_comments_of_topic(topic_id: int, page: int) -> dict:
@@ -51,7 +51,7 @@ def scrape_topics(keyword: str,
         page (int, optional): _description_. Defaults to 1.
         auth_token (str, optional): _description_. Defaults to "Basic dGVzdGVyOnRlc3Rlcg==".
 
-        To get auth_token:
+        To get `auth_token`:
         - request pantip search page for an arbitrary keyword
         - use Network tab of Chrome's inspect tool
         - Network > Fetch/XHR

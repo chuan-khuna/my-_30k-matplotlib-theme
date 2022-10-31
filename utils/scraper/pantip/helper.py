@@ -1,7 +1,6 @@
 from multiprocessing import Pool
 from .save_utils import *
-from .pantip_comments_scraper import *
-from .pantip_topics_scraper import *
+from .pantip_scraper import *
 import pandas as pd
 import numpy as np
 
