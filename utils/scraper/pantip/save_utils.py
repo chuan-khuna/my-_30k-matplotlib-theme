@@ -3,8 +3,21 @@ import os
 
 
 def save_comments_json(scrape_result: list[dict], output_folder: str = "."):
+    """select only comment data and save comments json into `/output_path/raw_comments/<topic_id>`
+
+    Args:
+        scrape_result (list[dict]): raw result from API scraping (list of pagination responses)
+        output_folder (str, optional): output folder for the dataset. Defaults to ".".
+    """
+
     comments = []
-    topic_id = scrape_result[0]['paging']['topic_id']
+
+    # check if a topic have comments
+    # todo: refactor, why the api doesn't return comments in that topic
+    if len(scrape_result) > 0:
+        topic_id = scrape_result[0]['paging']['topic_id']
+    else:
+        return
 
     for batch in scrape_result:
         if 'comments' in batch.keys():
@@ -22,6 +35,14 @@ def save_comments_json(scrape_result: list[dict], output_folder: str = "."):
 
 
 def save_topics_json(scrape_result: list[dict], keyword: str, output_folder: str = "."):
+    """Select only topics data and save topics file into `/output_path/<keyword>.json`
+
+    Args:
+        scrape_result (list[dict]): raw result from API scraping (list of pagination responses)
+        keyword (str): file name
+        output_folder (str, optional): utput folder for the dataset. Defaults to ".".
+    """
+
     topics = []
 
     for batch in scrape_result:
