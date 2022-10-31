@@ -3,90 +3,119 @@ import json
 import random
 import re
 import numpy as np
-import pandas as pd
 
 
-def _rotate_agent() -> str:
-    agents = [
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
-    ]
-    return random.choice(agents)
+class PantipScraper:
+
+    def __init__(self, auth_token: str = "Basic dGVzdGVyOnRlc3Rlcg=="):
+        self.auth_token = auth_token
+
+    def _rotate_agent(self) -> str:
+        agents = [
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+        ]
+        return random.choice(agents)
 
 
-def scrape_topics(keyword: str,
-                  page: int = 1,
-                  auth_token: str = "Basic dGVzdGVyOnRlc3Rlcg==") -> dict:
-    """Scrape topics that contains a specified `keyword`
-    each page contains 10 topics
+class TopicScraper(PantipScraper):
 
-    Args:
-        keyword (str): a keyword to search for topics
-        page (int, optional): _description_. Defaults to 1.
-        auth_token (str, optional): _description_. Defaults to "Basic dGVzdGVyOnRlc3Rlcg==".
+    def __init__(self):
+        PantipScraper.__init__(self)
+        self.max_topic_page = 50
+        self.api = "https://pantip.com/api/search-service/search/getresult"
 
-        To get `auth_token`:
-        - request pantip search page for an arbitrary keyword
-        - use Network tab of Chrome's inspect tool
-        - Network > Fetch/XHR
-        - find the api with name: 'getresult'
+    def _scrape_one_page(self, keyword: str, page: int = 1) -> dict:
+        agent = self._rotate_agent()
+        res = requests.post(self.api,
+                            headers={
+                                'ptauthorize': self.auth_token,
+                                'User-Agent': agent
+                            },
+                            json={
+                                "keyword": keyword,
+                                "page": page,
+                                'rooms': [],
+                                'timebias': False
+                            })
+        return json.loads(res.content)
 
-    Returns:
-        dict: json response
-    """
+    def _get_number_of_topic_pages(self,
+                                   keyword: str,
+                                   per_page: int = 10,
+                                   max_page: int = 1000) -> int:
+        # request to get the total number of topics
+        res = self._scrape_one_page(keyword, 1)
+        n_topic = res['total'].split(" ")[1]
+        n_topic = int(re.sub(",", "", n_topic))
+        print(f"found {n_topic} topics")
+        n_page = np.min([max_page, int(np.ceil(n_topic / per_page))])
+        print(f"={n_page} pages of {per_page}topic/page")
+        return n_page
 
-    url = "https://pantip.com/api/search-service/search/getresult"
-    agent = _rotate_agent()
-    res = requests.post(url,
-                        headers={
-                            'ptauthorize': auth_token,
-                            'User-Agent': agent
-                        },
-                        json={
-                            "keyword": keyword,
-                            "page": page,
-                            'rooms': [],
-                            'timebias': False
-                        })
-    return json.loads(res.content)
+    def scrape(self, keyword: str) -> list[dict]:
+        """Get all topics for a given keyword
 
+        Args:
+            keyword (str): keyword to search
 
-def scrape_comments_of_topic(topic_id: int, page: int) -> dict:
-    """Scrape all comments data from a topic id
-    Each page contains 100 comments
+        Returns:
+            list[dict]: list of pagination json API responses (raw)
+        """
 
-    Args:
-        topic_id (int): _description_ 
-        page (int): _description_
+        total_pages = self._get_number_of_topic_pages(keyword)
+        # limit the number of page to scrape
+        n_pages = total_pages
+        if n_pages > self.max_topic_page:
+            n_pages = self.max_topic_page
 
-    Returns:
-        dict: json response
-    """
-    url = "https://pantip.com/forum/topic/render_comments"
-    agent = _rotate_agent()
-    res = requests.get(url,
-                       params={
-                           'tid': topic_id,
-                           'param': f'page{page}'
-                       },
-                       headers={
-                           'x-requested-with': 'XMLHttpRequest',
-                           'User-Agent': agent
-                       })
-    return json.loads(res.content)
+        data = []
+        for page in range(1, n_pages + 1):
+            res = self._scrape_one_page(keyword, page)
+            data.append(res)
+        return data
 
 
-def get_number_of_topic_pages(keyword: str, per_page: int = 10, max_page: int = 1000) -> int:
+class CommentScraper(PantipScraper):
 
-    # request to get the total number of topics
-    res = scrape_topics(keyword, 1)
-    n_topic = res['total'].split(" ")[1]
-    n_topic = int(re.sub(",", "", n_topic))
-    print(f"found {n_topic} topics")
-    n_page = np.min([max_page, int(np.ceil(n_topic / per_page))])
-    print(f"={n_page} pages of {per_page}topic/page")
-    return n_page
+    def __init__(self):
+        self.api = "https://pantip.com/forum/topic/render_comments"
+
+    def _scrape_one_page(self, topic_id: str | int, page: int = 1) -> dict:
+        agent = self._rotate_agent()
+        res = requests.get(self.api,
+                           params={
+                               'tid': topic_id,
+                               'param': f'page{page}'
+                           },
+                           headers={
+                               'x-requested-with': 'XMLHttpRequest',
+                               'User-Agent': agent
+                           })
+        return json.loads(res.content)
+
+    def _get_number_of_comment_pages(self, topic_id: str | int) -> int:
+        res = self._scrape_one_page(topic_id)
+        max_comments = res['paging']['max_comments']
+        num_page = int(np.ceil(max_comments / 100))
+        return num_page
+
+    def scrape(self, topic_id: str | int) -> list[dict]:
+        """Get all comment for a topic
+
+        Args:
+            topic_id (str | int): Topic ID can be either in or string
+
+        Returns:
+            list[dict]: list of pagination json API responses (raw)
+        """
+        n_pages = self._get_number_of_comment_pages(topic_id)
+        data = []
+        for page in range(1, n_pages + 1):
+            res = self._scrape_one_page(topic_id, page)
+            data.append(res)
+        return data
