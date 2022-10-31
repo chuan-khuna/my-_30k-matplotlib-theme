@@ -1,6 +1,9 @@
 import requests
 import json
 import random
+import re
+import numpy as np
+import pandas as pd
 
 
 def _rotate_agent() -> str:
@@ -13,31 +16,6 @@ def _rotate_agent() -> str:
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     ]
     return random.choice(agents)
-
-
-def scrape_comments_of_topic(topic_id: int, page: int) -> dict:
-    """Scrape all comments data from a topic id
-    Each page contains 100 comments
-
-    Args:
-        topic_id (int): _description_ 
-        page (int): _description_
-
-    Returns:
-        dict: json response
-    """
-    url = "https://pantip.com/forum/topic/render_comments"
-    agent = _rotate_agent()
-    res = requests.get(url,
-                       params={
-                           'tid': topic_id,
-                           'param': f'page{page}'
-                       },
-                       headers={
-                           'x-requested-with': 'XMLHttpRequest',
-                           'User-Agent': agent
-                       })
-    return json.loads(res.content)
 
 
 def scrape_topics(keyword: str,
@@ -75,3 +53,40 @@ def scrape_topics(keyword: str,
                             'timebias': False
                         })
     return json.loads(res.content)
+
+
+def scrape_comments_of_topic(topic_id: int, page: int) -> dict:
+    """Scrape all comments data from a topic id
+    Each page contains 100 comments
+
+    Args:
+        topic_id (int): _description_ 
+        page (int): _description_
+
+    Returns:
+        dict: json response
+    """
+    url = "https://pantip.com/forum/topic/render_comments"
+    agent = _rotate_agent()
+    res = requests.get(url,
+                       params={
+                           'tid': topic_id,
+                           'param': f'page{page}'
+                       },
+                       headers={
+                           'x-requested-with': 'XMLHttpRequest',
+                           'User-Agent': agent
+                       })
+    return json.loads(res.content)
+
+
+def get_number_of_topic_pages(keyword: str, per_page: int = 10, max_page: int = 1000) -> int:
+
+    # request to get the total number of topics
+    res = scrape_topics(keyword, 1)
+    n_topic = res['total'].split(" ")[1]
+    n_topic = int(re.sub(",", "", n_topic))
+    print(f"found {n_topic} topics")
+    n_page = np.min([max_page, int(np.ceil(n_topic / per_page))])
+    print(f"={n_page} pages of {per_page}topic/page")
+    return n_page
