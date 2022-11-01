@@ -3,6 +3,8 @@
 last update: 1/Nov/2022
 
 ```py
+# use this code in if __name__ == '__main__':
+
 from utils.scraper.pantip.pantip_scraper import TopicScraper, CommentScraper
 from utils.scraper.pantip.save_utils import *
 from utils.scraper.pantip.helper import *

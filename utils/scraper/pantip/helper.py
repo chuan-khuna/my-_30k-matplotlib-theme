@@ -3,6 +3,7 @@ from .save_utils import *
 from .pantip_scraper import *
 import pandas as pd
 import numpy as np
+import time
 
 
 def multithread_scrape_comments(scraper,
@@ -38,6 +39,7 @@ def scrape_keyword(topic_scraper, comment_scraper, keyword: str, keyword_file: s
     cs = comment_scraper
 
     topic_responses = ts.scrape(keyword)
+    time.sleep(np.random.randint(1, 3))
     save_topics_json(topic_responses, keyword_file, dataset_path)
     print(f"topics file is saved at {topics_file}")
 
@@ -64,3 +66,4 @@ def scrape_keyword(topic_scraper, comment_scraper, keyword: str, keyword_file: s
 
         print(f"{i * batch_size}..{end}")
         multithread_scrape_comments(cs, batch_ids, dataset_path)
+        time.sleep(np.random.randint(1, 5))
