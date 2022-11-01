@@ -74,8 +74,13 @@ class TopicScraper(PantipScraper):
         n_topic = res['total'].split(" ")[1]
         n_topic = int(re.sub(",", "", n_topic))
         print(f"found {n_topic} topics")
-        n_page = np.min([max_page, int(np.ceil(n_topic / per_page))])
+        n_page = int(np.ceil(n_topic / per_page))
         print(f"={n_page} pages of {per_page}topic/page")
+
+        if self.max_topic_page < n_page:
+            print(f"scrape only: {self.max_topic_page}")
+            n_page = self.max_topic_page
+
         return n_page
 
     def scrape(self, keyword: str) -> list[dict]:
