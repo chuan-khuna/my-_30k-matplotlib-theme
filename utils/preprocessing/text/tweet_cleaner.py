@@ -35,16 +35,12 @@ class TweetCleaner(TextCleaner):
         pattern = re.compile(self.user_pattern)
         return re.sub(pattern, "", text)
 
-    def clean(self, text: str, remove_punctuations: bool = True) -> str:
+    def clean(self, text: str) -> str:
         # TweetCleaner is inherited from TextCleaner
         # Call parent methods
         text = self._replace_special_white_spaces(text)
         text = self._remove_urls(text)
         text = self._replace_RT_start(text)
         text = self._replace_all_users(text)
-        if remove_punctuations:
-            text = self._remove_punctuations(text)
-        # to ensure that there is no starting and ending space
-        text = self._replace_duplicated_spaces(text)
-        text = self._replace_start_end_spaces(text)
+        text = super().clean(text)
         return text
