@@ -75,7 +75,7 @@ class TopicScraper(PantipScraper):
         n_topic = int(re.sub(",", "", n_topic))
         print(f"found {n_topic} topics")
         n_page = int(np.ceil(n_topic / per_page))
-        print(f"={n_page} pages of {per_page}topic/page")
+        print(f"={n_page} pages of {per_page} topic/page")
 
         if self.max_topic_page < n_page:
             print(f"scrape only: {self.max_topic_page}")
