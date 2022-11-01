@@ -58,7 +58,6 @@ class TopicScraper(PantipScraper):
         # 'detail' will not included in the response
         topics = json.loads(res.content)
         if self.get_topic_detail:
-            print("Enable scraping for a topic detail - take longer time to run")
             for i, topic in enumerate(topics['data']):
                 detail = self._scrape_topic_detail(topic['id'])
                 topics['data'][i]['detail'] = detail
