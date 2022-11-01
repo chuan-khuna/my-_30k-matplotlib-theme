@@ -29,12 +29,24 @@ def multithread_scrape_comments(scraper,
         p.starmap(save_comments_json, zip(responses, folder_))
 
 
-def scrape_keyword(keyword: str, keyword_file: str, dataset_path: str):
+def scrape_keyword(topic_scraper, comment_scraper, keyword: str, keyword_file: str,
+                   dataset_path: str):
+    """A helper function to scrape data for a keyword
+    ie call only this function to create a dataset
+    
+
+    Args:
+        topic_scraper (_type_): _description_
+        comment_scraper (_type_): _description_
+        keyword (str): _description_
+        keyword_file (str): _description_
+        dataset_path (str): _description_
+    """
 
     topics_file = dataset_path + f"{keyword_file}.json"
 
-    ts = TopicScraper()
-    cs = CommentScraper()
+    ts = topic_scraper
+    cs = comment_scraper
 
     topic_responses = ts.scrape(keyword)
     save_topics_json(topic_responses, keyword_file, dataset_path)
