@@ -4,6 +4,7 @@ import random
 import re
 import numpy as np
 from bs4 import BeautifulSoup
+import time
 
 
 class PantipScraper:
@@ -12,6 +13,7 @@ class PantipScraper:
         self.auth_token = auth_token
 
     def _rotate_agent(self) -> str:
+        time.sleep(np.random.randint(1, 4))
         agents = [
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
