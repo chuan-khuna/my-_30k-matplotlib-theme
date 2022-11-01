@@ -3,6 +3,7 @@ import json
 import random
 import re
 import numpy as np
+from bs4 import BeautifulSoup
 
 
 class PantipScraper:
@@ -28,6 +29,15 @@ class TopicScraper(PantipScraper):
         PantipScraper.__init__(self)
         self.max_topic_page = 50
         self.api = "https://pantip.com/api/search-service/search/getresult"
+        self.get_topic_detail = False
+
+    def _scrape_topic_detail(self, topic_id: str | int):
+        url = f"https://pantip.com/topic/{topic_id}"
+        res = requests.get(url, headers={'User-Agent': self._rotate_agent()})
+        soup = BeautifulSoup(res.content)
+        topic_soup = soup.find(attrs={'class': "display-post-wrapper main-post type"})
+        topic_detail = topic_soup.find(attrs={'class': "display-post-story"}).text
+        return topic_detail
 
     def _scrape_one_page(self, keyword: str, page: int = 1) -> dict:
         agent = self._rotate_agent()
@@ -42,7 +52,17 @@ class TopicScraper(PantipScraper):
                                 'rooms': [],
                                 'timebias': False
                             })
-        return json.loads(res.content)
+
+        # when search a keyword by using this api
+        # if the keyword is not in the topic's detail
+        # 'detail' will not included in the response
+        topics = json.loads(res.content)
+        if self.get_topic_detail:
+            print("Enable scraping for a topic detail - take longer time to run")
+            for i, topic in enumerate(topics['data']):
+                detail = self._scrape_topic_detail(topic['id'])
+                topics['data'][i]['detail'] = detail
+        return topics
 
     def _get_number_of_topic_pages(self,
                                    keyword: str,
