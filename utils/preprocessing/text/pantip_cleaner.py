@@ -17,7 +17,7 @@ class PantipCleaner(TextCleaner):
     def _replace_pantip_spaces(self, text: str) -> str:
         space_patterns = [r"\{\{eem\}\}", r"\{\{em\}\}"]
         for pattern in space_patterns:
-            pattern = re.compile(self.pantip_spoil_pattern)
+            pattern = re.compile(pattern)
             text = re.sub(pattern, "", text)
         return text
 
