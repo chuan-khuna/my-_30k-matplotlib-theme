@@ -122,7 +122,14 @@ class CommentScraper(PantipScraper):
                                'x-requested-with': 'XMLHttpRequest',
                                'User-Agent': agent
                            })
-        return json.loads(res.content)
+        try:
+            res_json = json.loads(res.content)
+        except json.JSONDecodeError:
+            # handle if a page is removed by Pantip
+            # it will return plain text
+            print("Error whilst scraping:", topic_id)
+            res_json = {'paging': {'max_comments': 0}}
+        return res_json
 
     def _get_number_of_comment_pages(self, topic_id: str | int) -> int:
         res = self._scrape_one_page(topic_id)
