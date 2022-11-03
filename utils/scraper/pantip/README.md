@@ -8,7 +8,7 @@ last update: 1/Nov/2022
 from utils.scraper.pantip.pantip_scraper import TopicScraper, CommentScraper
 from utils.scraper.pantip.save_utils import *
 from utils.scraper.pantip.helper import *
-from utils.scraper.pantip.pantip_scraper.dataframe_utils.dataset_preprocessing import *
+from utils.scraper.pantip.dataframe_utils.dataset_preprocessing import *
 
 # dataset setting
 keyword = "sawano"
