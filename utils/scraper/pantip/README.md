@@ -31,6 +31,6 @@ scrape_keyword(ts, cs, keyword, keyword_file, dataset_path)
 
 # preprocess and save dataset file
 print("Preprocess...save data to .csv")
-raw_df = preprocess_keyword_data(topic_file, comments_path)
+raw_df = preprocess_keyword_dataset(topic_file, comments_path)
 raw_df.to_csv(dataset_path + "raw_data.csv", index=False)
 ```
