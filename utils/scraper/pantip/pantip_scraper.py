@@ -38,7 +38,10 @@ class TopicScraper(PantipScraper):
         res = requests.get(url, headers={'User-Agent': self._rotate_agent()})
         soup = BeautifulSoup(res.content)
         topic_soup = soup.find(attrs={'class': "display-post-wrapper main-post type"})
-        topic_detail = topic_soup.find(attrs={'class': "display-post-story"}).text
+        try:
+            topic_detail = topic_soup.find(attrs={'class': "display-post-story"}).text
+        except:
+            topic_detail = ''
         return topic_detail
 
     def _scrape_one_page(self, keyword: str, page: int = 1) -> dict:
