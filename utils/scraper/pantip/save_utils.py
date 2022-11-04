@@ -31,7 +31,7 @@ def save_comments_json(scrape_result: list[dict], output_folder: str = "."):
 
     with open(output_file, "w") as f:
         f.write(json.dumps(comments, ensure_ascii=False, indent=2))
-        print(output_file)
+        # print(output_file)
 
 
 def save_topics_json(scrape_result: list[dict], keyword: str, output_folder: str = "."):
@@ -56,4 +56,4 @@ def save_topics_json(scrape_result: list[dict], keyword: str, output_folder: str
 
     with open(output_file, "w") as f:
         f.write(json.dumps(topics, ensure_ascii=False, indent=2))
-        print(output_file)
+        # print(output_file)

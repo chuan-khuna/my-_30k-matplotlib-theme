@@ -5,6 +5,10 @@ import re
 import numpy as np
 from bs4 import BeautifulSoup
 import time
+from multiprocessing import Pool
+import warnings
+
+warnings.filterwarnings('ignore')
 
 
 class PantipScraper:
@@ -32,17 +36,23 @@ class TopicScraper(PantipScraper):
         self.max_topic_page = 50
         self.api = "https://pantip.com/api/search-service/search/getresult"
         self.get_topic_detail = False
+        self.pool_size = 4
 
     def _scrape_topic_detail(self, topic_id: str | int):
         url = f"https://pantip.com/topic/{topic_id}"
         res = requests.get(url, headers={'User-Agent': self._rotate_agent()})
         soup = BeautifulSoup(res.content)
         topic_soup = soup.find(attrs={'class': "display-post-wrapper main-post type"})
-        topic_detail = topic_soup.find(attrs={'class': "display-post-story"}).text
+        try:
+            topic_detail = topic_soup.find(attrs={'class': "display-post-story"}).text
+        except:
+            topic_detail = ''
         return topic_detail
 
     def _scrape_one_page(self, keyword: str, page: int = 1) -> dict:
         agent = self._rotate_agent()
+        if page % 5 == 0:
+            print(page)
         res = requests.post(self.api,
                             headers={
                                 'ptauthorize': self.auth_token,
@@ -73,15 +83,21 @@ class TopicScraper(PantipScraper):
         res = self._scrape_one_page(keyword, 1)
         n_topic = res['total'].split(" ")[1]
         n_topic = int(re.sub(",", "", n_topic))
-        print(f"found {n_topic} topics")
         n_page = int(np.ceil(n_topic / per_page))
-        print(f"={n_page} pages of {per_page} topic/page")
+        print(f"Pantip> found {n_topic} topics ={n_page} pages of {per_page} topic/page")
 
         if self.max_topic_page < n_page:
-            print(f"scrape only: {self.max_topic_page}")
+            print(f"Scrape only: {self.max_topic_page}")
             n_page = self.max_topic_page
 
         return n_page
+    
+    def _multithread_scrape_topic_page(self, keyword: str, pages: list[int]) -> list[dict]:
+        with Pool(self.pool_size) as p:
+            keyword_ = [keyword] * len(pages)
+            data = p.starmap(self._scrape_one_page, zip(keyword_, pages))
+
+        return data
 
     def scrape(self, keyword: str) -> list[dict]:
         """Get all topics for a given keyword
@@ -99,10 +115,8 @@ class TopicScraper(PantipScraper):
         if n_pages > self.max_topic_page:
             n_pages = self.max_topic_page
 
-        data = []
-        for page in range(1, n_pages + 1):
-            res = self._scrape_one_page(keyword, page)
-            data.append(res)
+        pages_to_scrape = list(range(1, n_pages + 1))
+        data = self._multithread_scrape_topic_page(keyword, pages_to_scrape)
         return data
 
 

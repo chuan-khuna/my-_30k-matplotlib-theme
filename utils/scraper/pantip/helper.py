@@ -41,7 +41,7 @@ def scrape_keyword(topic_scraper, comment_scraper, keyword: str, keyword_file: s
     topic_responses = ts.scrape(keyword)
     time.sleep(np.random.randint(1, 3))
     save_topics_json(topic_responses, keyword_file, dataset_path)
-    print(f"topics file is saved at {topics_file}")
+    print(f"Topics file is saved at {topics_file}")
 
     # load topic file to process
     with open(topics_file) as f:
@@ -51,7 +51,7 @@ def scrape_keyword(topic_scraper, comment_scraper, keyword: str, keyword_file: s
     ids = topics_df['id'].drop_duplicates()
 
     num_topics = len(ids)
-    print(f"found {num_topics} topics")
+    print(f"Found {num_topics} unique topics")
 
     # batch + multithread scraping
     # for large size query
