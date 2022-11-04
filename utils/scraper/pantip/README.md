@@ -1,6 +1,6 @@
 # How to use scraper
 
-last update: 1/Nov/2022
+last update: 2022/11/04
 
 ```py
 # use this code in if __name__ == '__main__':
@@ -22,7 +22,7 @@ comments_path = dataset_path + "/raw_comments/"
 
 # initialise scraper
 ts = TopicScraper()
-ts.get_topic_detail = False
+ts.get_topic_detail = True
 cs = CommentScraper()
 
 # scrape data
