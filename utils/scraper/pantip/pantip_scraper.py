@@ -68,6 +68,7 @@ class TopicScraper(PantipScraper):
         # when search a keyword by using this api
         # if the keyword is not in the topic's detail
         # 'detail' will not included in the response
+        # TODO: handle error whilst no 'data' key
         topics = json.loads(res.content)
         if self.get_topic_detail:
             for i, topic in enumerate(topics['data']):
