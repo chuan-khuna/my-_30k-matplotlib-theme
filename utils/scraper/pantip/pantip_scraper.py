@@ -68,12 +68,15 @@ class TopicScraper(PantipScraper):
         # when search a keyword by using this api
         # if the keyword is not in the topic's detail
         # 'detail' will not included in the response
-        # TODO: handle error whilst no 'data' key
-        topics = json.loads(res.content)
-        if self.get_topic_detail:
-            for i, topic in enumerate(topics['data']):
-                detail = self._scrape_topic_detail(topic['id'])
-                topics['data'][i]['detail'] = detail
+        try:
+            topics = json.loads(res.content)
+            if self.get_topic_detail:
+                for i, topic in enumerate(topics['data']):
+                    detail = self._scrape_topic_detail(topic['id'])
+                    topics['data'][i]['detail'] = detail
+        except json.JSONDecodeError:
+            print(f"Error found during scraping page: {page}")
+            topics = {}
         return topics
 
     def _get_number_of_topic_pages(self,
@@ -92,7 +95,7 @@ class TopicScraper(PantipScraper):
             n_page = self.max_topic_page
 
         return n_page
-    
+
     def _multithread_scrape_topic_page(self, keyword: str, pages: list[int]) -> list[dict]:
         with Pool(self.pool_size) as p:
             keyword_ = [keyword] * len(pages)
