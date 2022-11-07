@@ -16,6 +16,10 @@ class YouTubeScraper:
         self.api_url = "https://www.youtube.com/youtubei/v1/next?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&prettyPrint=false"
         self.max_lazyload = 10
 
+        # selenium
+        self.selenium_scroll = 10
+        self.selenium_wait = 1
+
     def __initialise_driver(self):
         capabilities = DesiredCapabilities.CHROME
         capabilities["goog:loggingPrefs"] = {"performance": "ALL"}
@@ -37,14 +41,17 @@ class YouTubeScraper:
         return lazyload_logs[0]
 
     def __get_header_and_payload(self, url: str) -> list[dict]:
+        print("Use selenium to get the first lazyload request")
         self.__initialise_driver()
         action = ActionChains(self.driver)
         self.driver.get(url)
         # wait and load page
         time.sleep(2)
-        for i in range(3):
+        for i in range(self.selenium_scroll):
+            print(".", end="")
             action.send_keys(Keys.PAGE_DOWN).perform()
-            time.sleep(1)
+            time.sleep(self.selenium_wait)
+        print("\n")
         logs_raw = self.driver.get_log("performance")
         logs = [json.loads(lr["message"])["message"] for lr in logs_raw]
         self.driver.close()
@@ -76,7 +83,7 @@ class YouTubeScraper:
 
         data = []
         for p in range(1, self.max_lazyload + 1):
-            print("Request for lazy load page: {p} ...")
+            print(f"Request for lazy load page: {p} ...")
             response_json = self._scrape_one_lazyload(header, payload)
             if len(list(response_json.keys())) > 0:
                 data.append(response_json)
