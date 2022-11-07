@@ -1,9 +1,9 @@
 # How to use twitter scraper
 
 ```py
-scraper = TwitterScraper('path/to/yaml')
+scraper = TwitterScraper('path/to/header.yml')
 scraper.n_lazy_load = 20
 
 # list of tweets (dict)
-data = ts.scrape('Sawano Hiroyuki')
+data = scraper.scrape('Sawano Hiroyuki')
 ```
