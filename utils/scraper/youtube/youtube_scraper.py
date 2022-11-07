@@ -38,7 +38,12 @@ class YouTubeScraper:
             # api pattern
             if re.findall(r"next\?key", str_log):
                 lazyload_logs.append(log)
-        return lazyload_logs[0]
+
+        if len(lazyload_logs) > 0:
+            return lazyload_logs[0]
+        else:
+            print("Cannot find lazyload API")
+            return None
 
     def __get_header_and_payload(self, url: str) -> list[dict]:
         print("Use selenium to get the first lazyload request")
