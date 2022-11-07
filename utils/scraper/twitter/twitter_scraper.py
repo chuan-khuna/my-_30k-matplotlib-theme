@@ -7,6 +7,11 @@ import yaml
 class TwitterScraper:
 
     def __init__(self, header_yml_path: str):
+        """
+        Args:
+            header_yml_path (str): A YAML file that contains request header params
+            it should contain ['authorization', 'cookie', 'x-csrf-token'] (nov 2022)
+        """
         self.n_lazy_load = 10
         self.root_url = "https://twitter.com/i/api/2/search/adaptive.json"
         self.headers = self.__load_yaml_params(header_yml_path)
