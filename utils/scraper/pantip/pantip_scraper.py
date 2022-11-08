@@ -37,6 +37,7 @@ class TopicScraper(PantipScraper):
         self.api = "https://pantip.com/api/search-service/search/getresult"
         self.get_topic_detail = False
         self.pool_size = 4
+        self.rooms = []
 
     def _scrape_topic_detail(self, topic_id: str | int):
         url = f"https://pantip.com/topic/{topic_id}"
@@ -61,7 +62,7 @@ class TopicScraper(PantipScraper):
                             json={
                                 "keyword": keyword,
                                 "page": page,
-                                'rooms': [],
+                                'rooms': self.rooms,
                                 'timebias': False
                             })
 
