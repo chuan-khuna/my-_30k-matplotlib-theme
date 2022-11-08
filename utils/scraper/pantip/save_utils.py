@@ -25,7 +25,7 @@ def save_comments_json(scrape_result: list[dict], output_folder: str = "."):
 
     output_folder = output_folder + "/raw_comments/"
     if not os.path.exists(f"{output_folder}"):
-        os.makedirs(f"{output_folder}")
+        os.makedirs(f"{output_folder}", exist_ok=True)
 
     output_file = f"{output_folder}/{topic_id}.json"
 
@@ -50,7 +50,7 @@ def save_topics_json(scrape_result: list[dict], keyword: str, output_folder: str
             topics += batch['data']
 
     if not os.path.exists(f"{output_folder}"):
-        os.makedirs(f"{output_folder}")
+        os.makedirs(f"{output_folder}", exist_ok=True)
 
     output_file = f"{output_folder}/{keyword}.json"
 
