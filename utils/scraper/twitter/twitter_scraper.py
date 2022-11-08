@@ -25,7 +25,7 @@ class TwitterScraper:
         with open(yaml_path) as f:
             params = yaml.load(f, yaml.Loader)
 
-        return selected_params
+        return params
 
     def __create_payload(self, keyword: str, cursor_token: str) -> str:
         """Create GET request payload
