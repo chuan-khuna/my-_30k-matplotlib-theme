@@ -10,7 +10,8 @@ class TwitterScraper:
         """
         Args:
             header_yml_path (str): A YAML file that contains request header params
-            it should contain ['authorization', 'cookie', 'x-csrf-token'] (nov 2022)
+            it should contain (log in search) ['authorization', 'cookie', 'x-csrf-token'] (nov 2022)
+            for incognito search it also need 'x-guest-token'
         """
         self.n_lazy_load = 10
         self.root_url = "https://twitter.com/i/api/2/search/adaptive.json"
@@ -20,14 +21,9 @@ class TwitterScraper:
         return re.sub(r'\s', '%20', keyword)
 
     def __load_yaml_params(self, yaml_path: str) -> dict:
-        selected_keys = ['authorization', 'cookie', 'x-csrf-token']
 
         with open(yaml_path) as f:
             params = yaml.load(f, yaml.Loader)
-
-        selected_params = {}
-        for k in selected_keys:
-            selected_params[k] = params[k]
 
         return selected_params
 
