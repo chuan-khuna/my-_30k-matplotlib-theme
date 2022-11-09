@@ -14,7 +14,7 @@ def generate_wordcloud(tokenised_texts):
         width=2000,
         height=1600,
         max_words=200,
-        prefer_horizontal=0.9,
+        prefer_horizontal=1.0,
         background_color='white',
         colormap='plasma')
     wc.generate_from_frequencies(freq_dict)
