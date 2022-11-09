@@ -81,36 +81,44 @@ class TwitterScraper:
         else:
             return {}
 
-    def __flatten_tweets(self, tweets: dict) -> list[dict]:
-        """Flatten tweets in the responses from {tweet_id: tweet_details} to [tweet_details]
+    def __flatten_dict(self, dict_: dict) -> list[dict]:
+        """Flatten elements in the responses from {id: {..detail...}, id: {}} to [{..detail..}, {}]
 
         Args:
-            tweets (dict): `{id: detail, id: detail}` tweets data from API response
+            dict_ (dict): `{id: detail, id: detail}` dict data from API response
 
         Returns:
             list[dict]: flattened data in `[detail, detail]` format
         """
-        flattened_tweets = []
-        for k, v in tweets.items():
-            flattened_tweets.append(v)
-        return flattened_tweets
+        flattened = []
+        for k, v in dict_.items():
+            flattened.append(v)
+        return flattened
 
-    def scrape(self, keyword: str) -> list[dict]:
+    def scrape(self, keyword: str) -> dict[list[dict]]:
         """Scrape twitter data for a given keyword
 
         Returns:
-            dict: list of tweets detail(dict)
+            dict: list of tweets detail and list of users detail
         """
 
-        data = []
+        tweets = []
+        users = []
         cursor_token = ''
         for n in range(self.n_lazy_load):
             print(f"Lazy load page {n+1} ...")
             res = self._scrape_one_lazy_load(keyword, cursor_token)
             cursor_token = self._find_cursor_token(res)
-            page_n_tweets = self.__flatten_tweets(res['globalObjects']['tweets'])
+            if 'globalObjects' not in res.keys():
+                print("Cannot find data in json response")
+                break
+            page_n_tweets = self.__flatten_dict(res['globalObjects']['tweets'])
+            page_n_users = self.__flatten_dict(res['globalObjects']['users'])
             print(f"> Found {len(page_n_tweets)} tweets")
             if len(page_n_tweets) == 0:
                 break
-            data += page_n_tweets
+
+            tweets += page_n_tweets
+            users += page_n_users
+        data = {'tweets': tweets, 'users': users}
         return data
