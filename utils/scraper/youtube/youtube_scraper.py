@@ -17,8 +17,8 @@ class YouTubeScraper:
         self.max_lazyload = 10
 
         # selenium
-        self.selenium_scroll = 10
-        self.selenium_wait = 1
+        self.selenium_scroll = 5
+        self.selenium_wait = 1.5
 
     def __initialise_driver(self):
         capabilities = DesiredCapabilities.CHROME
@@ -70,9 +70,14 @@ class YouTubeScraper:
         return header, payload
 
     def __find_continuation_token(self, response_json: dict):
-        tokens = re.findall(r"'token': \'(\S+)'", str(response_json))
+        """find all tokens from response(json)
+
+        This code regex pattern will be used with json.dumps() not str()
+        """
+        pattern = r"\"continuationCommand\":\s+\{\"token\":\s+\"(\S+)\""
+        tokens = re.findall(pattern, json.dumps(response_json))
         if len(tokens) > 0:
-            return tokens[0]
+            return tokens[-1]
         else:
             return None
 
@@ -84,6 +89,16 @@ class YouTubeScraper:
             return {}
 
     def scrape(self, yt_url: str) -> list[dict]:
+        """scrape data from a youtube video
+        it needs selenium to get the first header
+
+        Args:
+            yt_url (str): url
+
+        Returns:
+            list[dict]: each element in this list is a response of lazyload request
+        """
+
         header, payload = self.__get_header_and_payload(yt_url)
 
         data = []
@@ -93,9 +108,9 @@ class YouTubeScraper:
             if len(list(response_json.keys())) > 0:
                 data.append(response_json)
                 # update token if exist
-                token = self.__find_continuation_token(response_json)
-                if token:
-                    payload['continuation'] = token
+                continue_token = self.__find_continuation_token(response_json)
+                if continue_token:
+                    payload['continuation'] = continue_token
                 else:
                     break
             else:
