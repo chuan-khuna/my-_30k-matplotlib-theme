@@ -7,9 +7,9 @@ def _re_find_text(comment_thread_obj):
     """
 
     # item from list in ["reloadContinuationItemsCommand"]["continuationItems"]
-    text_data_str = re.findall(r"'contentText':\s+{'runs':\s+\[({.*})\]},\s+'publishedTimeText'",
-                               str(comment_thread_obj))
-    return [eval(t) for t in text_data_str]
+    pattern = r"\"contentText\":\s+{\"runs\":\s+\[({.*})\]},\s+\"publishedTimeText\""
+    result = re.findall(pattern, json.dumps(comment_thread_obj))
+    return [eval(text) for text in result]
 
 
 def extract_comments_from_response(json_obj: dict) -> list[str]:
@@ -18,18 +18,20 @@ def extract_comments_from_response(json_obj: dict) -> list[str]:
 
     extracted_comments = []
 
-    if "onResponseReceivedEndpoints" in json_obj.keys():
-        for continue_item in json_obj["onResponseReceivedEndpoints"]:
-
-            # select key to dig deeper
-            if "reloadContinuationItemsCommand" in continue_item.keys():
-                k = "reloadContinuationItemsCommand"
-            elif "appendContinuationItemsAction" in continue_item.keys():
-                k = "appendContinuationItemsAction"
-            # comments are in this key's list
-            for comment_thread_item in continue_item[k]["continuationItems"]:
-                if "commentThreadRenderer" in comment_thread_item.keys():
-                    extracted_comments += _re_find_text(comment_thread_item)
+    try:
+        if "onResponseReceivedEndpoints" in json_obj.keys():
+            for continue_item in json_obj["onResponseReceivedEndpoints"]:
+                # select key to dig deeper
+                if "reloadContinuationItemsCommand" in continue_item.keys():
+                    k = "reloadContinuationItemsCommand"
+                elif "appendContinuationItemsAction" in continue_item.keys():
+                    k = "appendContinuationItemsAction"
+                # comments are in this key's list
+                for comment_thread_item in continue_item[k]["continuationItems"]:
+                    if "commentThreadRenderer" in comment_thread_item.keys():
+                        extracted_comments += _re_find_text(comment_thread_item)
+    except:
+        pass
 
     texts = []
 
