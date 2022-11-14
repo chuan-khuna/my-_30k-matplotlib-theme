@@ -49,11 +49,10 @@ class YouTubeScraper:
     def __get_header_and_payload(self, url: str) -> list[dict]:
 
         success = False
+        print("Use selenium to get the first lazyload request")
         while not success:
             # try until success
-
             try:
-                print("Use selenium to get the first lazyload request")
                 self.__initialise_driver()
                 action = ActionChains(self.driver)
                 self.driver.get(url)
@@ -75,7 +74,6 @@ class YouTubeScraper:
                 payload = json.loads(request_data['postData'])
                 success = True
             except:
-                print("Fail to load first response -> retry...")
                 success = False
 
         return header, payload
@@ -114,7 +112,7 @@ class YouTubeScraper:
 
         data = []
         for p in range(1, self.max_lazyload + 1):
-            print(f"Request for lazy load page: {p} ...")
+            print(f"Request for lazy load page: {p}")
             response_json = self._scrape_one_lazyload(header, payload)
             if len(list(response_json.keys())) > 0:
                 data.append(response_json)
