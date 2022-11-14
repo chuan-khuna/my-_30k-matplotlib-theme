@@ -26,6 +26,7 @@ class YouTubeScraper:
 
         options = webdriver.ChromeOptions()
         options.add_argument("headless")
+        options.add_argument("--mute-audio")
 
         self.driver = webdriver.Chrome(desired_capabilities=capabilities,
                                        executable_path=self.chromedriver_path,
