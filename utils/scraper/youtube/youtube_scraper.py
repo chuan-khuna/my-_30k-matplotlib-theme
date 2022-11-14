@@ -47,26 +47,36 @@ class YouTubeScraper:
             return None
 
     def __get_header_and_payload(self, url: str) -> list[dict]:
-        print("Use selenium to get the first lazyload request")
-        self.__initialise_driver()
-        action = ActionChains(self.driver)
-        self.driver.get(url)
-        # wait and load page
-        time.sleep(2)
-        for i in range(self.selenium_scroll):
-            print(".", end="")
-            action.send_keys(Keys.PAGE_DOWN).perform()
-            time.sleep(self.selenium_wait)
-        print("\n")
-        logs_raw = self.driver.get_log("performance")
-        logs = [json.loads(lr["message"])["message"] for lr in logs_raw]
-        self.driver.close()
 
-        # extract header and __get_header_and_payload
-        first_lazyload_request = self.__find_first_lazyload(logs)
-        request_data = first_lazyload_request['params']['request']
-        header = request_data['headers']
-        payload = json.loads(request_data['postData'])
+        success = False
+        while not success:
+            # try until success
+
+            try:
+                print("Use selenium to get the first lazyload request")
+                self.__initialise_driver()
+                action = ActionChains(self.driver)
+                self.driver.get(url)
+                # wait and load page
+                time.sleep(2)
+                for i in range(self.selenium_scroll):
+                    print(".", end="")
+                    action.send_keys(Keys.PAGE_DOWN).perform()
+                    time.sleep(self.selenium_wait)
+                print("\n")
+                logs_raw = self.driver.get_log("performance")
+                logs = [json.loads(lr["message"])["message"] for lr in logs_raw]
+                self.driver.close()
+
+                # extract header and __get_header_and_payload
+                first_lazyload_request = self.__find_first_lazyload(logs)
+                request_data = first_lazyload_request['params']['request']
+                header = request_data['headers']
+                payload = json.loads(request_data['postData'])
+                success = True
+            except:
+                print("Fail to load first response -> retry...")
+                success = False
 
         return header, payload
 
