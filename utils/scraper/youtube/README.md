@@ -18,6 +18,5 @@ data = scraper.scrape(url)
 comments = []
 for res in data:
     lazyload_comments = extract_comments_from_response(res)
-    print(len(comments))
     comments += lazyload_comments
 ```
