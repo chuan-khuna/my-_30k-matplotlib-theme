@@ -106,7 +106,7 @@ class TwitterScraper:
         users = []
         cursor_token = ''
         for n in range(self.n_lazy_load):
-            print(f"Lazy load page {n+1} ...")
+            print(f"Lazy load page: {n+1}")
             res = self._scrape_one_lazy_load(keyword, cursor_token)
             cursor_token = self._find_cursor_token(res)
             if 'globalObjects' not in res.keys():
