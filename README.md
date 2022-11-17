@@ -35,6 +35,15 @@ rm -rf tmp && git clone https://github.com/chuan-khuna/my-python-utils.git tmp &
 
 ## To run unit tests
 
+[many ways](https://docs.pytest.org/en/7.1.x/how-to/output.html) to run `pytest`
+
 ```sh
-python3 -m pytest ./tests
+python3 -m pytest ./tests --cov
+```
+
+you can add
+
+```sh
+--tb=short
+--tb=no
 ```
