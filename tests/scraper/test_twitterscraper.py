@@ -55,3 +55,27 @@ def test_extract_token_should_return_token_as_str(scraper):
     token = scraper.extract_token(response)
     assert not isinstance(token, list)
     assert isinstance(token, str)
+
+
+# todo: think about how this function should return
+def test_process_response_should_return_something(scraper):
+    pass
+
+
+def test_scrape_function_should_loop_until_it_reach_limit(scraper):
+    pass
+
+
+# check if process(response) -> {}
+# check if token is None
+def test_scrape_function_should_break_the_loop_when_no_more_data(scraper):
+    pass
+
+
+def test_scrape_function_should_break_the_loop_if_token_is_none(scraper):
+    pass
+
+
+# test the funcion response type
+def test_scrape_function_should_return_type_something(scraper):
+    pass
