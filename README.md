@@ -32,3 +32,9 @@ from utils.vis_utils import *
 ```txt
 rm -rf tmp && git clone https://github.com/chuan-khuna/my-python-utils.git tmp && cp -R tmp/utils ./ && rm -rf tmp
 ```
+
+## To run unit tests
+
+```sh
+python3 -m pytest ./tests
+```

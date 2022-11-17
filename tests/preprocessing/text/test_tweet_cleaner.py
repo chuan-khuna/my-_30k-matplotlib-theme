@@ -76,21 +76,19 @@ def test_clean_method(tweet_cleaner):
     # Only tweet content
     tweet = "RT @some_user: Hello world! @userA @userB\n@userCwithverylongname  @usrd"
     expected_cleaned_tweet = "Hello world!"
-    assert (
-        tweet_cleaner.clean(tweet, remove_punctuations=False) == expected_cleaned_tweet
-    )
+    tweet_cleaner.remove_punctuations = False
+    assert tweet_cleaner.remove_punctuations == False
+    assert (tweet_cleaner.clean(tweet) == expected_cleaned_tweet)
 
+    tweet_cleaner.remove_punctuations = True
+    assert tweet_cleaner.remove_punctuations == True
     tweet = "RT @some_user: Hello world! @userA @userB\n@userCwithverylongname  @usrd"
     expected_cleaned_tweet = "Hello world"
-    assert (
-        tweet_cleaner.clean(tweet, remove_punctuations=True) == expected_cleaned_tweet
-    )
+    assert (tweet_cleaner.clean(tweet) == expected_cleaned_tweet)
 
     tweet = "RT @some_user: https://www.youtube.com/ Hello world! by @userA"
     expected_cleaned_tweet = "Hello world by"
-    assert (
-        tweet_cleaner.clean(tweet, remove_punctuations=True) == expected_cleaned_tweet
-    )
+    assert (tweet_cleaner.clean(tweet) == expected_cleaned_tweet)
 
 
 def test_replace_child_method_with_parent_method_it_should_not_error(tweet_cleaner):
