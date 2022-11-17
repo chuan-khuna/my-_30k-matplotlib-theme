@@ -8,6 +8,10 @@ class BaseScraper:
 
         pass
 
+    def extract_token(self, response: dict) -> str:
+        token = response['token']
+        return token
+
     def scrape_lazyload(self, keyword: str, token: str) -> dict:
         # return raw response
         # return {} if fail to request data (ie not 200 code)

@@ -12,7 +12,7 @@ import requests
 # without altering/filtering any content
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def scraper():
     scraper = BaseScraper()
     yield scraper
@@ -21,7 +21,7 @@ def scraper():
 
 @patch('requests.get', return_value=requests.Response())
 @patch('requests.Response.json', side_effect=Exception)
-def test_scrape_lazyload_should_return_blank_dictionary_if_error_occurs(m1, m2):
+def test_scrape_lazyload_should_return_blank_dictionary_if_error_occurs(m1, m2, scraper):
     res = scraper.scrape_lazyload('url', 'token')
     assert res == {}
 
@@ -34,3 +34,19 @@ mock_response = {'hello': {'world': 'python'}}
 def test_scrape_lazyload_should_not_alter_raw_response(m1, m2):
     res = scraper.scrape_lazyload('url', 'token')
     assert res == mock_response
+
+
+# suppose that an error occurs during finding a token
+# the later function will check if token is none it will stop the process
+@patch('requests.get', side_effect=Exception)
+def test_extract_token_should_return_none_if_error_occurs_or_cannot_find_token(m1, scraper):
+    response = {}
+    token = scraper.extract_token(response)
+    assert token is None
+
+
+def test_extract_token_should_return_non_list_object(scraper):
+    response = {'token': 'ThisIsToken'}
+    token = scraper.extract_token(response)
+    assert token == 'ThisIsToken'
+    assert not isinstance(token, list)
