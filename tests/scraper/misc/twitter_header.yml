@@ -1,0 +1,11 @@
+authorization: Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA
+cookie: guest_id_marketing=v1%3A166806636657114596; guest_id_ads=v1%3A166806636657114596; personalization_id="v1_Jjkz/MBnZBNJCgiATXsbsg=="; guest_id=v1%3A166806636657114596; ct0=dc16f9989e7af3bed59960f6c07dcaf4; _ga=GA1.2.193872670.1668066367; _gid=GA1.2.860760004.1668066367; gt=1590611747765125120
+referer: https://twitter.com/search?q=john%20burn-murdoch&src=recent_search_click
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: 'macOS'
+sec-fetch-dest: empty
+sec-fetch-mode: cors
+sec-fetch-site: same-origin
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36
+x-csrf-token: dc16f9989e7af3bed59960f6c07dcaf4
+x-guest-token: '1590611747765125120'
