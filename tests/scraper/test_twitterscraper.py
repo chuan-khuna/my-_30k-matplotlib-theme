@@ -1,4 +1,4 @@
-from utils.scraper.twitter.twitter_scraper import TwitterScraper
+from utils.scraper.twitter.new.tweet_scraper import TweetScraper
 from unittest.mock import patch, MagicMock, Mock
 import pytest
 import requests
@@ -12,13 +12,19 @@ HEADER_PATH = os.path.join(TEST_PATH, "misc/twitter_header.yml")
 @pytest.fixture
 def scraper():
     print(HEADER_PATH)
-    scraper = TwitterScraper(HEADER_PATH)
+    scraper = TweetScraper(HEADER_PATH)
     yield scraper
     del scraper
 
 
-def test_initialise_twitter_scraper_with_header_yaml():
-    scraper = TwitterScraper(HEADER_PATH)
+# This scraper scrape for tweets information
+# ie from Twitter's search bar
+def test_initialise_tweet_scraper_with_header_yaml():
+    scraper = TweetScraper(HEADER_PATH)
+    # test attributes
+    scraper.max_lazyload
+    scraper.api_url
+    assert isinstance(scraper.headers, dict)
 
 
 # mock twitter response
