@@ -7,7 +7,7 @@ import json
 
 # https://stackoverflow.com/questions/7165749/open-file-in-a-relative-location-in-python
 TEST_PATH = os.path.dirname(__file__)
-HEADER_PATH = os.path.join(TEST_PATH, "misc/twitter_header.yml")
+HEADER_PATH = os.path.join(TEST_PATH, "misc/twitter/twitter_header.yml")
 
 
 @pytest.fixture
@@ -76,18 +76,39 @@ def test_extract_token_should_return_none_if_error_or_cannot_token_doesnt_exist(
 def test_extract_token_should_return_token_as_str(scraper):
     # twiiter response here?
     # load mock response
-    with open(os.path.join(TEST_PATH, "misc/tweet_cursor_token.json")) as f:
+    with open(os.path.join(TEST_PATH, "misc/twitter/tweet_cursor_token.json")) as f:
         response = json.load(f)
-    expected_result = "Sawano Hiroyuki is the best music composer"
+    expected_result = "Sawano-Hiroyuki-is-the-best-music-composer"
     token = scraper._extract_token(response)
     assert not isinstance(token, list)
     assert isinstance(token, str)
     assert token == expected_result
 
 
+def test_flatten_dict_should_return_a_list_of_dicts(scraper):
+    # example of twitter response format
+    tweets = {'t1': {'content': 't1'}, 't2': {'content': 't2'}}
+
+    result = scraper._flatten_dict(tweets)
+
+    assert isinstance(result, list)
+    for i, (_, v) in enumerate((tweets.items())):
+        assert isinstance(result[i], dict)
+        assert result[i] == v
+
+
 # todo: think about how this function should return
 def test_process_response_should_return_a_dictionary_with_tweets_and_users(scraper):
-    assert False
+    # expected_response = {'users': [{...}, {...}], 'tweets': [{...}, {...}]}
+    # type dict[list[dict]]
+    # load mock response
+    with open(os.path.join(TEST_PATH, "misc/twitter/full_tweets_response.json")) as f:
+        mock_response = json.load(f)
+    processed_response = scraper.process_response(mock_response)
+
+    assert isinstance(processed_response, dict)
+    assert isinstance(processed_response["tweets"], list)
+    assert isinstance(processed_response["users"], list)
 
 
 def test_scrape_function_should_loop_until_it_reach_limit(scraper):

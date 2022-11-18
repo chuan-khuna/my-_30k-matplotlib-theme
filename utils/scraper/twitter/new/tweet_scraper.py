@@ -72,6 +72,7 @@ class TweetScraper:
         pattern = r"\"cursor\":\s+{\"cursorType\":\s+\"Bottom\",\s+\"value\":\s+\"([a-zA-Z0-9_-]+)\"}*"
         # sort_keys to ensure that string can be found by a regex pattern
         tokens = re.findall(pattern, json.dumps(response, sort_keys=True))
+        print(tokens)
 
         if len(tokens) > 0:
             token = tokens[0]
@@ -79,6 +80,24 @@ class TweetScraper:
             token = None
 
         return token
+
+    def _flatten_dict(self, dict_: dict) -> list[dict]:
+        return list(dict_.values())
+
+    def process_response(self, response: dict) -> dict[list[dict]]:
+
+        processed_data = {}
+        keys_to_extract = ['tweets', 'users']
+        if 'globalObjects' in response.keys():
+            data = response['globalObjects']
+
+            for k in keys_to_extract:
+                if k in data.keys():
+                    processed_data[k] = self._flatten_dict(data[k])
+                else:
+                    processed_data[k] = []
+
+        return processed_data
 
     def scrape_lazyload(self, keyword: str, cursor_token: str) -> dict:
         """Request for a lazyload response, return {} if error occurs
