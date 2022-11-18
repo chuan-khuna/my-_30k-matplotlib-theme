@@ -136,8 +136,19 @@ class TweetScraper:
         return response_json
 
     def scrape(self, keyword: str) -> dict[str, list[dict]]:
+        """Scrape for tweets that contain a keyword from twitter (search bar)
 
-        # initialise cleaned data bucket
+        Args:
+            keyword (str): _description_
+
+        Returns:
+            dict[str, list[dict]]: a dictionary where its keys is the information to extract, 
+            eg `tweets`, `users`. Its values are a list of dicts of that entity.
+
+            example {'tweets': [{...}, {...}], 'users': [{...}, {...}]}
+        """
+
+        # initialise cleaned data
         data = {}
         for k in self.data_to_extract:
             data[k] = []
