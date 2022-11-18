@@ -8,6 +8,7 @@ import json
 # https://stackoverflow.com/questions/7165749/open-file-in-a-relative-location-in-python
 TEST_PATH = os.path.dirname(__file__)
 HEADER_PATH = os.path.join(TEST_PATH, "misc/twitter/twitter_header.yml")
+MOCK_PACKAGE_PATH = "utils.scraper.twitter.new.tweet_scraper.TweetScraper"
 
 
 @pytest.fixture
@@ -97,7 +98,6 @@ def test_flatten_dict_should_return_a_list_of_dicts(scraper):
         assert result[i] == v
 
 
-# todo: think about how this function should return
 def test_process_response_should_return_a_dictionary_with_tweets_and_users(scraper):
     # expected_response = {'users': [{...}, {...}], 'tweets': [{...}, {...}]}
     # type dict[list[dict]]
@@ -109,6 +109,37 @@ def test_process_response_should_return_a_dictionary_with_tweets_and_users(scrap
     assert isinstance(processed_response, dict)
     assert isinstance(processed_response["tweets"], list)
     assert isinstance(processed_response["users"], list)
+
+
+# there are things to stop the scrape function
+# loop until it reachs max_lazyload limit
+# response contains no data, ie cannot find some key in json
+# response contains blank tweets, users
+# cursor is None
+tokens = ['token1', 'token2', None, None]
+with open(os.path.join(TEST_PATH, "misc/twitter/full_tweets_response.json")) as f:
+    mock_response = json.load(f)
+
+
+@patch(f'{MOCK_PACKAGE_PATH}._extract_token', side_effect=tokens)
+@patch(f'{MOCK_PACKAGE_PATH}.scrape_lazyload', side_effect=[mock_response] * len(tokens))
+@patch(f'{MOCK_PACKAGE_PATH}.process_response',
+       side_effect=[{
+           'tweets': [{
+               't1': 't1 content'
+           }],
+           'users': [{
+               'u1': 'u1 name'
+           }]
+       }] * len(tokens))
+def test_scrape_should_stop_when_cursor_token_is_none(m1, m2, m3, scraper):
+    result = scraper.scrape('Sawano Hiroyuki')
+
+    # count the number of loop
+    # function should added data before break
+    # if any error occurs, add []
+    assert len(result['tweets']) == 3
+    assert len(result['users']) == 3
 
 
 def test_scrape_function_should_loop_until_it_reach_limit(scraper):

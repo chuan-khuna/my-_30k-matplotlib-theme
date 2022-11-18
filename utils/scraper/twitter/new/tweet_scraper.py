@@ -10,6 +10,7 @@ class TweetScraper:
         self.max_lazyload = 10
         self.api_url = "https://twitter.com/i/api/2/search/adaptive.json"
         self.headers = self._load_header_from_yaml(header_yaml_path)
+        self.data_to_extract = ['tweets', 'users']
 
     def _load_header_from_yaml(self, yaml_path: str) -> dict:
         with open(yaml_path) as f:
@@ -84,7 +85,7 @@ class TweetScraper:
     def _flatten_dict(self, dict_: dict) -> list[dict]:
         return list(dict_.values())
 
-    def process_response(self, response: dict) -> dict[list[dict]]:
+    def process_response(self, response: dict) -> dict[str, list[dict]]:
         """Process raw response to extract only interested information
 
         Args:
@@ -98,11 +99,10 @@ class TweetScraper:
         """
 
         processed_data = {}
-        keys_to_extract = ['tweets', 'users']
         if 'globalObjects' in response.keys():
             data = response['globalObjects']
 
-            for k in keys_to_extract:
+            for k in self.data_to_extract:
                 if k in data.keys():
                     processed_data[k] = self._flatten_dict(data[k])
                 else:
@@ -133,3 +133,33 @@ class TweetScraper:
             response_json = {}
 
         return response_json
+
+    def scrape(self, keyword: str) -> dict[str, list[dict]]:
+
+        # initialise cleaned data bucket
+        data = {}
+        for k in self.data_to_extract:
+            data[k] = []
+
+        cursor_token = ''
+        for i in range(1, self.max_lazyload + 1):
+            print(f"Lazyload page: {i}")
+
+            # request and process data
+            res = self.scrape_lazyload(keyword, cursor_token)
+            processed_data = self.process_response(res)
+            cursor_token = self._extract_token(res)
+
+            blank_response = True
+            for k in self.data_to_extract:
+                if k in processed_data.keys():
+                    data[k] += processed_data[k]
+                    blank_response = blank_response and (len(processed_data[k]) == 0)
+            # check condition to break the loop
+            if 'globalObjects' not in res.keys():
+                break
+            if cursor_token is None:
+                break
+            if blank_response:
+                break
+        return data
