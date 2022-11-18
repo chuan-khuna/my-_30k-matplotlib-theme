@@ -59,14 +59,25 @@ class TweetScraper:
         return api_url + payload
 
     def _extract_token(self, response: dict) -> str | None:
+        """Extract cursor token from a raw response
+        using regular expression because it is too deep to find
+        TODO: update this code by finding token by condition
+
+        Args:
+            response (dict): raw response
+
+        Returns:
+            str | None: a string of cursor token, None if not exists
+        """
         pattern = r"\"cursor\":\s+{\"cursorType\":\s+\"Bottom\",\s+\"value\":\s+\"([a-zA-Z0-9_-]+)\"}*"
+        # sort_keys to ensure that string can be found by a regex pattern
         tokens = re.findall(pattern, json.dumps(response, sort_keys=True))
-        
+
         if len(tokens) > 0:
             token = tokens[0]
         else:
             token = None
-        
+
         return token
 
     def scrape_lazyload(self, keyword: str, cursor_token: str) -> dict:
