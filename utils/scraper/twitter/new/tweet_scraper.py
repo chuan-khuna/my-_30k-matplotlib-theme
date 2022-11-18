@@ -85,6 +85,17 @@ class TweetScraper:
         return list(dict_.values())
 
     def process_response(self, response: dict) -> dict[list[dict]]:
+        """Process raw response to extract only interested information
+
+        Args:
+            response (dict): raw response
+
+        Returns:
+            dict[list[dict]]: a dictionary where its keys is the information to extract, 
+            eg `tweets`, `users`. Its values are a list of dicts of that entity.
+
+            example {'tweets': [{...}, {...}], 'users': [{...}, {...}]}
+        """
 
         processed_data = {}
         keys_to_extract = ['tweets', 'users']
