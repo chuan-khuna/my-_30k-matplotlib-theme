@@ -58,6 +58,15 @@ class TweetScraper:
 
         return api_url + payload
 
+    def _extract_token(self, response: dict) -> str | None:
+        pattern = r"\"cursor\":\s+{\"cursorType\":\s+\"Bottom\",\s+\"value\":\s+\"([a-zA-Z0-9_-]+)\"}*"
+        tokens = re.findall(pattern, json.dumps(response, sort_keys=True))
+        if len(tokens) > 0:
+            token = tokens[0]
+        else:
+            token = None
+        return token
+
     def scrape_lazyload(self, keyword: str, cursor_token: str) -> dict:
         """Request for a lazyload response, return {} if error occurs
 
