@@ -73,7 +73,6 @@ class TweetScraper:
         pattern = r"\"cursor\":\s+{\"cursorType\":\s+\"Bottom\",\s+\"value\":\s+\"([a-zA-Z0-9_-]+)\"}*"
         # sort_keys to ensure that string can be found by a regex pattern
         tokens = re.findall(pattern, json.dumps(response, sort_keys=True))
-        print(tokens)
 
         if len(tokens) > 0:
             token = tokens[0]
@@ -137,8 +136,19 @@ class TweetScraper:
         return response_json
 
     def scrape(self, keyword: str) -> dict[str, list[dict]]:
+        """Scrape for tweets that contain a keyword from twitter (search bar)
 
-        # initialise cleaned data bucket
+        Args:
+            keyword (str): _description_
+
+        Returns:
+            dict[str, list[dict]]: a dictionary where its keys is the information to extract, 
+            eg `tweets`, `users`. Its values are a list of dicts of that entity.
+
+            example {'tweets': [{...}, {...}], 'users': [{...}, {...}]}
+        """
+
+        # initialise cleaned data
         data = {}
         for k in self.data_to_extract:
             data[k] = []
@@ -153,11 +163,14 @@ class TweetScraper:
             cursor_token = self._extract_token(res)
 
             blank_response = True
+            print("- Found", end=" ")
             for k in self.data_to_extract:
                 if k in processed_data.keys():
                     data[k] += processed_data[k]
                     # if there is data in processed_data -> set flat to not break this loop
                     blank_response = blank_response and (len(processed_data[k]) == 0)
+                    print(f"{k}: {len(processed_data[k])}", end=' ')
+            print("")
             # check condition to break the loop
             # if 'globalObjects' not in res.keys():
             #     break
