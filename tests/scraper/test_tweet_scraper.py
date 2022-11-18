@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock, Mock
 import pytest
 import requests
 import os
+import json
 
 # https://stackoverflow.com/questions/7165749/open-file-in-a-relative-location-in-python
 TEST_PATH = os.path.dirname(__file__)
@@ -68,16 +69,20 @@ def test_scrape_lazyload_should_return_blank_dict_if_response_code_is_not_200(m1
 def test_extract_token_should_return_none_if_error_or_cannot_token_doesnt_exist(scraper):
     # error occurs, blank response, cannot find token
     response = {}
-    token = scraper.extract_token(response)
+    token = scraper._extract_token(response)
     assert token is None
 
 
 def test_extract_token_should_return_token_as_str(scraper):
     # twiiter response here?
-    response = {}
-    token = scraper.extract_token(response)
+    # load mock response
+    with open(os.path.join(TEST_PATH, "misc/tweet_cursor_token.json")) as f:
+        response = json.load(f)
+    expected_result = "Sawano Hiroyuki is the best music composer"
+    token = scraper._extract_token(response)
     assert not isinstance(token, list)
     assert isinstance(token, str)
+    assert token == expected_result
 
 
 # todo: think about how this function should return
