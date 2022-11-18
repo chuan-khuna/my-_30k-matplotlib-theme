@@ -1,4 +1,4 @@
-from utils.scraper.twitter.new.tweet_scraper import TweetScraper
+from utils.scraper.twitter.tweet_scraper import TweetScraper
 from unittest.mock import patch, MagicMock, Mock
 import pytest
 import requests
@@ -8,7 +8,7 @@ import json
 # https://stackoverflow.com/questions/7165749/open-file-in-a-relative-location-in-python
 TEST_PATH = os.path.dirname(__file__)
 HEADER_PATH = os.path.join(TEST_PATH, "misc/twitter/twitter_header.yml")
-MOCK_PACKAGE_PATH = "utils.scraper.twitter.new.tweet_scraper.TweetScraper"
+MOCK_PACKAGE_PATH = "utils.scraper.twitter.tweet_scraper.TweetScraper"
 
 
 @pytest.fixture
