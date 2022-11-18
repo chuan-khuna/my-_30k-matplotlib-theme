@@ -152,11 +152,14 @@ class TweetScraper:
             cursor_token = self._extract_token(res)
 
             blank_response = True
+            print("- Found", end=" ")
             for k in self.data_to_extract:
                 if k in processed_data.keys():
                     data[k] += processed_data[k]
                     # if there is data in processed_data -> set flat to not break this loop
                     blank_response = blank_response and (len(processed_data[k]) == 0)
+                    print(f"{k} = {len(processed_data[k])}", end=' ')
+            print("")
             # check condition to break the loop
             # if 'globalObjects' not in res.keys():
             #     break
