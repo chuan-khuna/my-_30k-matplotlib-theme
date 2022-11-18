@@ -15,3 +15,9 @@ class TweetScraper:
         with open(yaml_path) as f:
             headers = yaml.load(f, yaml.Loader)
         return headers
+
+    def _build_payload(self, keyword: str, cursor_token: str) -> str:
+        pass
+
+    def scrape_lazyload(self) -> dict:
+        pass
