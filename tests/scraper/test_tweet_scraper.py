@@ -38,14 +38,31 @@ def test_scrape_lazyload_should_return_blank_dict_if_error_occurs(m1, m2, scrape
 
 # mock twitter response
 expected_result = {'hello': 'world'}
+response_mock = requests.Response()
+response_mock.status_code = 200
 
 
-@patch('requests.get', return_value=requests.Response())
+@patch('requests.get', return_value=response_mock)
 # an error occurs
 @patch('requests.Response.json', return_value=expected_result)
 def test_scrape_lazyload_should_return_the_response_without_altering(m1, m2, scraper):
     result = scraper.scrape_lazyload('keyword', 'token')
     assert result == expected_result
+
+
+# mock twitter response
+expected_result = {'hello': 'world'}
+response_mock = requests.Response()
+response_mock.status_code = 429
+
+
+@patch('requests.get', return_value=response_mock)
+# an error occurs
+@patch('requests.Response.json', return_value=expected_result)
+def test_scrape_lazyload_should_return_blank_dict_if_response_code_is_not_200(m1, m2, scraper):
+    result = scraper.scrape_lazyload('keyword', 'token')
+    assert result != expected_result
+    assert result == {}
 
 
 def test_extract_token_should_return_none_if_error_or_cannot_token_doesnt_exist(scraper):
