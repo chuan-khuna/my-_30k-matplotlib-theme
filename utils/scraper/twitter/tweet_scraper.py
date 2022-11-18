@@ -61,25 +61,49 @@ class TweetScraper:
 
     def _extract_token(self, response: dict) -> str | None:
         """Extract cursor token from a raw response
-        using regular expression because it is too deep to find
-        TODO: update this code by finding token by condition
+            TODO: refactor this spaghetti code
 
-        Args:
-            response (dict): raw response
+            Args:
+                response (dict): raw response
 
-        Returns:
-            str | None: a string of cursor token, None if not exists
-        """
-        pattern = r"\"cursor\":\s+{\"cursorType\":\s+\"Bottom\",\s+\"value\":\s+\"([a-zA-Z0-9_-]+)\"}*"
-        # sort_keys to ensure that string can be found by a regex pattern
-        tokens = re.findall(pattern, json.dumps(response, sort_keys=True))
+            Returns:
+                str | None: a string of cursor token, None if not exists
+            """
 
-        if len(tokens) > 0:
-            token = tokens[0]
-        else:
-            token = None
+        try:
+            if 'timeline' in response.keys():
+                timeline_data = response['timeline']
+                if 'instructions' in timeline_data.keys():
+                    instructions_data = timeline_data['instructions']
 
-        return token
+            all_entries = []
+
+            # flatten entry data
+            for item in instructions_data:
+                for k in item.keys():
+                    if k == 'addEntries':
+                        entries_data = item['addEntries']['entries']
+                    elif k == 'replaceEntry':
+                        entries_data = item['replaceEntry']['entry']
+
+                    if isinstance(entries_data, list):
+                        all_entries += entries_data
+                    else:
+                        all_entries += [entries_data]
+
+            # find cursor token
+            for entry in all_entries:
+                if 'operation' in entry['content'].keys():
+                    operation = entry['content']['operation']
+                    if 'cursor' in operation.keys():
+                        cursor = operation['cursor']
+                        if cursor['cursorType'] == 'Bottom':
+                            cursor_token = cursor['value']
+        except Exception:
+            print("Cannot find cursor token")
+            cursor_token = None
+
+        return cursor_token
 
     def _flatten_dict(self, dict_: dict) -> list[dict]:
         return list(dict_.values())
