@@ -77,13 +77,13 @@ def test_extract_token_should_return_none_if_error_or_cannot_token_doesnt_exist(
 def test_extract_token_should_return_token_as_str(scraper):
     # twiiter response here?
     # load mock response
-    with open(os.path.join(TEST_PATH, "misc/twitter/tweet_cursor_token.json")) as f:
+    with open(os.path.join(TEST_PATH, "misc/twitter/full_tweets_response.json")) as f:
         response = json.load(f)
-    expected_result = "Sawano-Hiroyuki-is-the-best-music-composer"
     token = scraper._extract_token(response)
     assert not isinstance(token, list)
     assert isinstance(token, str)
-    assert token == expected_result
+    # token is a long length string
+    assert len(token) > 10
 
 
 def test_flatten_dict_should_return_a_list_of_dicts(scraper):
