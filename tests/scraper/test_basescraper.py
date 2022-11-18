@@ -1,4 +1,4 @@
-from utils.scraper.BaseScraper import BaseScraper
+from utils.scraper.scraper import Scraper
 from unittest.mock import patch, MagicMock, Mock
 import pytest
 import requests
@@ -14,39 +14,19 @@ import requests
 
 @pytest.fixture
 def scraper():
-    scraper = BaseScraper()
+    scraper = Scraper()
     yield scraper
     del scraper
 
 
-@patch('requests.get', return_value=requests.Response())
-@patch('requests.Response.json', side_effect=Exception)
-def test_scrape_lazyload_should_return_blank_dictionary_if_error_occurs(m1, m2, scraper):
-    res = scraper.scrape_lazyload('url', 'token')
-    assert res == {}
+def test_scraper_should_be_able_to_set_the_limit_of_pages_to_be_loaded(scraper):
+    scraper.max_lazyload = 99
+    assert scraper.max_lazyload == 99
 
 
-mock_response = {'hello': {'world': 'python'}}
+def test_scraper_should_be_able_to_scrape(scraper):
+    scraper.scrape()
 
 
-@patch('requests.get', return_value=requests.Response())
-@patch('requests.Response.json', return_value=mock_response)
-def test_scrape_lazyload_should_not_alter_raw_response(m1, m2):
-    res = scraper.scrape_lazyload('url', 'token')
-    assert res == mock_response
-
-
-# suppose that an error occurs during finding a token
-# the later function will check if token is none it will stop the process
-@patch('requests.get', side_effect=Exception)
-def test_extract_token_should_return_none_if_error_occurs_or_cannot_find_token(m1, scraper):
-    response = {}
-    token = scraper.extract_token(response)
-    assert token is None
-
-
-def test_extract_token_should_return_non_list_object(scraper):
-    response = {'token': 'ThisIsToken'}
-    token = scraper.extract_token(response)
-    assert token == 'ThisIsToken'
-    assert not isinstance(token, list)
+def test_scraper_should_be_able_to_scrape_for_a_lazyload(scraper):
+    scraper.scrape_lazyload()
