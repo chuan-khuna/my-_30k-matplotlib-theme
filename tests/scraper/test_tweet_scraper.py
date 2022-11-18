@@ -86,7 +86,7 @@ def test_extract_token_should_return_token_as_str(scraper):
 
 
 # todo: think about how this function should return
-def test_process_response_should_return_something(scraper):
+def test_process_response_should_return_a_dictionary_with_tweets_and_users(scraper):
     assert False
 
 
