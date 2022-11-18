@@ -73,7 +73,6 @@ class TweetScraper:
         pattern = r"\"cursor\":\s+{\"cursorType\":\s+\"Bottom\",\s+\"value\":\s+\"([a-zA-Z0-9_-]+)\"}*"
         # sort_keys to ensure that string can be found by a regex pattern
         tokens = re.findall(pattern, json.dumps(response, sort_keys=True))
-        print(tokens)
 
         if len(tokens) > 0:
             token = tokens[0]
