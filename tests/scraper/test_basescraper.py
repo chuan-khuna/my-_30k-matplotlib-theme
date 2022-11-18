@@ -19,6 +19,11 @@ def scraper():
     del scraper
 
 
+def test_scraper_should_be_able_to_set_the_limit_of_pages_to_be_loaded(scraper):
+    scraper.max_lazyload = 99
+    assert scraper.max_lazyload == 99
+
+
 def test_scraper_should_be_able_to_scrape(scraper):
     scraper.scrape()
 
