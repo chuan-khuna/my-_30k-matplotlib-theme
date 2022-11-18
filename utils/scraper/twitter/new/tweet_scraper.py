@@ -96,6 +96,8 @@ class TweetScraper:
             eg `tweets`, `users`. Its values are a list of dicts of that entity.
 
             example {'tweets': [{...}, {...}], 'users': [{...}, {...}]}
+
+            return {} if key not found
         """
 
         processed_data = {}
@@ -154,10 +156,11 @@ class TweetScraper:
             for k in self.data_to_extract:
                 if k in processed_data.keys():
                     data[k] += processed_data[k]
+                    # if there is data in processed_data -> set flat to not break this loop
                     blank_response = blank_response and (len(processed_data[k]) == 0)
             # check condition to break the loop
-            if 'globalObjects' not in res.keys():
-                break
+            # if 'globalObjects' not in res.keys():
+            #     break
             if cursor_token is None:
                 break
             if blank_response:

@@ -119,19 +119,12 @@ def test_process_response_should_return_a_dictionary_with_tweets_and_users(scrap
 tokens = ['token1', 'token2', None, None]
 with open(os.path.join(TEST_PATH, "misc/twitter/full_tweets_response.json")) as f:
     mock_response = json.load(f)
+mock_processed_data = {'tweets': [{'t1': 't1 content'}], 'users': [{'u1': 'u1 name'}]}
 
 
 @patch(f'{MOCK_PACKAGE_PATH}._extract_token', side_effect=tokens)
 @patch(f'{MOCK_PACKAGE_PATH}.scrape_lazyload', side_effect=[mock_response] * len(tokens))
-@patch(f'{MOCK_PACKAGE_PATH}.process_response',
-       side_effect=[{
-           'tweets': [{
-               't1': 't1 content'
-           }],
-           'users': [{
-               'u1': 'u1 name'
-           }]
-       }] * len(tokens))
+@patch(f'{MOCK_PACKAGE_PATH}.process_response', side_effect=[mock_processed_data] * len(tokens))
 def test_scrape_should_stop_when_cursor_token_is_none(m1, m2, m3, scraper):
     result = scraper.scrape('Sawano Hiroyuki')
 
@@ -142,20 +135,42 @@ def test_scrape_should_stop_when_cursor_token_is_none(m1, m2, m3, scraper):
     assert len(result['users']) == 3
 
 
-def test_scrape_function_should_loop_until_it_reach_limit(scraper):
-    assert False
+# if data larger than limited page
+total_lazyload = 15
+tokens = ['token'] * total_lazyload
+with open(os.path.join(TEST_PATH, "misc/twitter/full_tweets_response.json")) as f:
+    mock_response = json.load(f)
+mock_processed_data = {'tweets': [{'t1': 't1 content'}], 'users': [{'u1': 'u1 name'}]}
 
 
-# check if process(response) -> {}
-# check if token is None
-def test_scrape_function_should_break_the_loop_when_no_more_data(scraper):
-    assert False
+@patch(f'{MOCK_PACKAGE_PATH}._extract_token', side_effect=tokens)
+@patch(f'{MOCK_PACKAGE_PATH}.scrape_lazyload', side_effect=[mock_response] * len(tokens))
+@patch(f'{MOCK_PACKAGE_PATH}.process_response', side_effect=[mock_processed_data] * len(tokens))
+def test_scrape_function_should_loop_until_it_reach_limit(m1, m2, m3, scraper):
+    max_lazyload = 3
+    scraper.max_lazyload = max_lazyload
+    result = scraper.scrape('Sawano Hiroyuki')
+    assert len(result['tweets']) == max_lazyload
+    assert len(result['users']) == max_lazyload
 
 
-def test_scrape_function_should_break_the_loop_if_token_is_none(scraper):
-    assert False
+# if data larger than limited page
+total_lazyload = 15
+tokens = ['token'] * total_lazyload
+with open(os.path.join(TEST_PATH, "misc/twitter/full_tweets_response.json")) as f:
+    mock_response = json.load(f)
+mock_processed_data = {'tweets': [{'t1': 't1 content'}], 'users': [{'u1': 'u1 name'}]}
 
 
-# test the funcion response type
-def test_scrape_function_should_return_type_something(scraper):
-    assert False
+@patch(f'{MOCK_PACKAGE_PATH}._extract_token', side_effect=tokens)
+@patch(f'{MOCK_PACKAGE_PATH}.scrape_lazyload',
+       side_effect=[mock_response] * (len(tokens) - 1) + [{}])
+@patch(f'{MOCK_PACKAGE_PATH}.process_response',
+       side_effect=[mock_processed_data] * (len(tokens) - 1) + [{}])
+def test_scrape_function_should_stop_the_loop_if_no_more_data(m1, m2, m3, scraper):
+    max_lazyload = 20
+    scraper.max_lazyload = max_lazyload
+    result = scraper.scrape('Sawano Hiroyuki')
+    # last page doesn't contain data
+    assert len(result['tweets']) == total_lazyload - 1
+    assert len(result['users']) == total_lazyload - 1
