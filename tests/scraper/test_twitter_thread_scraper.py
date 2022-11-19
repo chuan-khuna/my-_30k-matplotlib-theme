@@ -17,3 +17,49 @@ def scraper():
     scraper = ThreadScraper(HEADER_PATH)
     yield scraper
     del scraper
+
+
+def test_initialise_thread_scraper_with_header_yaml():
+    scraper = ThreadScraper(HEADER_PATH)
+    # test attributes
+    scraper.max_lazyload
+    scraper.api_url
+    assert isinstance(scraper.headers, dict)
+
+
+# mock twitter response
+@patch('requests.get', return_value=requests.Response())
+# an error occurs
+@patch('requests.Response.json', side_effect=Exception)
+def test_scrape_lazyload_should_return_blank_dict_if_error_occurs(m1, m2, scraper):
+    result = scraper.scrape_lazyload('tweet_id')
+    assert result == {}
+
+
+# mock twitter response
+expected_result = {'hello': 'world'}
+response_mock = requests.Response()
+response_mock.status_code = 200
+
+
+@patch('requests.get', return_value=response_mock)
+# an error occurs
+@patch('requests.Response.json', return_value=expected_result)
+def test_scrape_lazyload_should_return_the_response_without_altering(m1, m2, scraper):
+    result = scraper.scrape_lazyload('tweet_id')
+    assert result == expected_result
+
+
+# mock twitter response
+expected_result = {'hello': 'world'}
+response_mock = requests.Response()
+response_mock.status_code = 429
+
+
+@patch('requests.get', return_value=response_mock)
+# an error occurs
+@patch('requests.Response.json', return_value=expected_result)
+def test_scrape_lazyload_should_return_blank_dict_if_response_code_is_not_200(m1, m2, scraper):
+    result = scraper.scrape_lazyload('tweet_id')
+    assert result != expected_result
+    assert result == {}
