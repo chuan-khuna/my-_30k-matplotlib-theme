@@ -82,3 +82,15 @@ def test_extract_token_should_return_token_as_str(scraper):
     assert isinstance(token, str)
     # token is a long length string
     assert len(token) > 10
+
+
+def test_process_response_should_return_a_list_of_dictionary_that_contains_a_reply_tweet_data(
+        scraper):
+    # processed_response = [{..rep1..}, {..rep2..}]
+    with open(os.path.join(TEST_PATH, "misc/twitter/full_thread_response.json")) as f:
+        mock_response = json.load(f)
+    processed_response = scraper.process_response(mock_response)
+
+    assert isinstance(processed_response, list)
+    for item in processed_response:
+        assert isinstance(item, dict)
