@@ -63,3 +63,22 @@ def test_scrape_lazyload_should_return_blank_dict_if_response_code_is_not_200(m1
     result = scraper.scrape_lazyload('tweet_id')
     assert result != expected_result
     assert result == {}
+
+
+def test_extract_token_should_return_none_if_error_or_cannot_token_doesnt_exist(scraper):
+    # error occurs, blank response, cannot find token
+    response = {}
+    token = scraper._extract_token(response)
+    assert token is None
+
+
+def test_extract_token_should_return_token_as_str(scraper):
+    # twiiter response here?
+    # load mock response
+    with open(os.path.join(TEST_PATH, "misc/twitter/full_thread_response.json")) as f:
+        response = json.load(f)
+    token = scraper._extract_token(response)
+    assert not isinstance(token, list)
+    assert isinstance(token, str)
+    # token is a long length string
+    assert len(token) > 10
