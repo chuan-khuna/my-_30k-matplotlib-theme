@@ -1,8 +1,10 @@
-# How to use twitter scraper
+# How to use tweets scraper
+
+This scraper will gather tweets from Twitter search
 
 ```py
-scraper = TwitterScraper('path/to/header.yml')
-scraper.n_lazy_load = 20
+scraper = Tweetscraper('path/to/header.yml')
+scraper.max_lazyload = 20
 
 # list of tweets (dict)
 data = scraper.scrape('Sawano Hiroyuki')
