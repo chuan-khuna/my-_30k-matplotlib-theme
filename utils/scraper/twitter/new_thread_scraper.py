@@ -132,3 +132,20 @@ class ThreadScraper:
             response_json = {}
 
         return response_json
+
+    def scrape(self, tweet_id: str) -> list[dict]:
+        all_replies = []
+        cursor_token = ''
+        for i in range(1, self.max_lazyload + 1):
+            print(f"Lazyload page: {i}")
+            res = self.scrape_lazyload(tweet_id, cursor_token)
+            processed_response = self.process_response(res)
+            cursor_token = self._extract_token(res)
+            print(f"- Found {len(processed_response)} replies")
+            all_replies += processed_response
+
+            if cursor_token is None:
+                break
+            if len(processed_response) == 0:
+                break
+        return all_replies
