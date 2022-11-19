@@ -20,18 +20,6 @@ class TweetScraper:
             headers = yaml.load(f, yaml.Loader)
         return headers
 
-    def _format_keyword(self, keyword: str) -> str:
-        """Formatting to for url-safe string
-
-        Args:
-            keyword (str)
-
-        Returns:
-            str: url-safe string (ie string that appears in URLs)
-        """
-        keyword = re.sub(r"\s", "%20", keyword)
-        return keyword
-
     def _build_payload(self, keyword: str, cursor_token: str) -> dict:
         # see more: https://requests.readthedocs.io/en/latest/user/quickstart/
         # Passing Parameters In URLs (GET request)
