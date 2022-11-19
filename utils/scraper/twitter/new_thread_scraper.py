@@ -60,6 +60,29 @@ class ThreadScraper:
 
         return params
 
+    def _extract_token(self, response: dict) -> str:
+        tokens = []
+        try:
+            # get thread data; time line add
+            thread_data = response['data']['threaded_conversation_with_injections_v2'][
+                'instructions'][0]
+
+            for entry in thread_data['entries']:
+                try:
+                    token = entry['content']['itemContent']['value']
+                    tokens.append(token)
+                except Exception:
+                    pass
+
+        except KeyError:
+            pass
+
+        if len(tokens) > 0:
+            token = tokens[0]
+        else:
+            token = None
+        return token
+
     def scrape_lazyload(self, tweet_id: str, cursor_token: str) -> dict:
 
         params = self._build_payload(tweet_id, cursor_token)
