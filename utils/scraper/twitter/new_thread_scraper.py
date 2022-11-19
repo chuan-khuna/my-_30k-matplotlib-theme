@@ -83,6 +83,40 @@ class ThreadScraper:
             token = None
         return token
 
+    def __extract_replies_from_entry(self, entry: dict) -> list[dict]:
+        # an entry -- a reply grop the reply of a tweet and its replies(if it has)
+        # so we need to extract 1. reply of a tweet + 2. reply of a reply
+
+        entry_replies = []
+        try:
+            entry_content = entry['content']
+
+            # loop through a group of reply
+            # to extract the reply ifself and its replies
+            for item in entry_content['items']:
+                reply_detail = item['item']['itemContent']['tweet_results']['result']['legacy']
+                entry_replies.append(reply_detail)
+
+        except Exception:
+            pass
+
+        return entry_replies
+
+    def process_response(self, response: dict) -> list[dict]:
+        replies_in_response = []
+        try:
+            # thread data (tweet and its replies) -- a group of replies in a lazyload
+            raw_thread_data = response['data']['threaded_conversation_with_injections_v2'][
+                'instructions'][0]
+            for entry in raw_thread_data['entries']:
+                replies = self.__extract_replies_from_entry(entry)
+                if len(replies) > 0:
+                    replies_in_response += replies
+        except Exception:
+            pass
+
+        return replies_in_response
+
     def scrape_lazyload(self, tweet_id: str, cursor_token: str) -> dict:
 
         params = self._build_payload(tweet_id, cursor_token)
