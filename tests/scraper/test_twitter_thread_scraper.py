@@ -32,7 +32,7 @@ def test_initialise_thread_scraper_with_header_yaml():
 # an error occurs
 @patch('requests.Response.json', side_effect=Exception)
 def test_scrape_lazyload_should_return_blank_dict_if_error_occurs(m1, m2, scraper):
-    result = scraper.scrape_lazyload('tweet_id')
+    result = scraper.scrape_lazyload('tweet_id', 'token')
     assert result == {}
 
 
@@ -46,7 +46,7 @@ response_mock.status_code = 200
 # an error occurs
 @patch('requests.Response.json', return_value=expected_result)
 def test_scrape_lazyload_should_return_the_response_without_altering(m1, m2, scraper):
-    result = scraper.scrape_lazyload('tweet_id')
+    result = scraper.scrape_lazyload('tweet_id', 'token')
     assert result == expected_result
 
 
@@ -60,7 +60,7 @@ response_mock.status_code = 429
 # an error occurs
 @patch('requests.Response.json', return_value=expected_result)
 def test_scrape_lazyload_should_return_blank_dict_if_response_code_is_not_200(m1, m2, scraper):
-    result = scraper.scrape_lazyload('tweet_id')
+    result = scraper.scrape_lazyload('tweet_id', 'token')
     assert result != expected_result
     assert result == {}
 

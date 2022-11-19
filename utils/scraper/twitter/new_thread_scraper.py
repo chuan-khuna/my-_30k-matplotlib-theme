@@ -21,8 +21,6 @@ class ThreadScraper:
         params = {
             "variables": {
                 "focalTweetId": "1592481858520240128",
-                # "cursor":
-                #     "ZAAAAPAVHBmmgIDTwb-N0ZksgICq0aD6kZwsgIDUrZaT0ZkshsDS_aiEGwDRwNKBzYnRmSyCwNP9hi0AUcDT3dySJABA092lhhsA8AmA0-2Ni9GZLITA0fGshNGZLCUCEhUEAAA",
                 "referrer": "tweet",
                 "with_rux_injections": False,
                 "includePromotedContent": True,
@@ -56,8 +54,24 @@ class ThreadScraper:
         }
 
         params["variables"]["focalTweetId"] = tweet_id
-        
+
         if cursor_token:
             params["variables"]["cursor"] = cursor_token
 
         return params
+
+    def scrape_lazyload(self, tweet_id: str, cursor_token: str) -> dict:
+
+        params = self._build_payload(tweet_id, cursor_token)
+
+        try:
+            res = requests.get(self.api_url, params=params, headers=self.headers, timeout=5)
+
+            if res.status_code == 200:
+                response_json = res.json()
+            else:
+                response_json = {}
+        except Exception:
+            response_json = {}
+
+        return response_json
