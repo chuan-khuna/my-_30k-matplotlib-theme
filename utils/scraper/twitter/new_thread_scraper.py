@@ -19,7 +19,7 @@ class ThreadScraper:
     def _build_payload(self, tweet_id: str, cursor_token: str) -> dict:
         params = {
             "variables": {
-                "focalTweetId": "1592481858520240128",
+                "focalTweetId": "",
                 "referrer": "tweet",
                 "with_rux_injections": False,
                 "includePromotedContent": True,
@@ -117,12 +117,21 @@ class ThreadScraper:
         return replies_in_response
 
     def scrape_lazyload(self, tweet_id: str, cursor_token: str) -> dict:
+        """
+        ref: to use nested dictionary as query params https://stackoverflow.com/questions/48193316/passing-a-nested-dictionary-to-requests-module
+
+        Args:
+            tweet_id (str): _description_
+            cursor_token (str): _description_
+
+        Returns:
+            dict: _description_
+        """
 
         params = self._build_payload(tweet_id, cursor_token)
 
         try:
-            res = requests.get(self.api_url, params=params, headers=self.headers, timeout=5)
-
+            res = requests.get(self.api_url, json=params, headers=self.headers, timeout=5)
             if res.status_code == 200:
                 response_json = res.json()
             else:
