@@ -1,55 +1,65 @@
 import json
-import re
-import requests
 import yaml
+import requests
+import re
 
 
 class ThreadScraper:
 
     def __init__(self, header_yaml_path: str):
-        self.root_url = "https://twitter.com/i/api/graphql/BoHLKeBvibdYDiJON1oqTg/TweetDetail"
-        self.headers = self.__load_yaml(header_yaml_path)
-        self.n_lazy_load = 10
+        self.max_lazyload = 10
+        self.api_url = "https://twitter.com/i/api/graphql/BoHLKeBvibdYDiJON1oqTg/TweetDetail"
+        self.headers = self._load_header_from_yaml(header_yaml_path)
 
-    def __load_yaml(self, path: str) -> dict:
-        with open(path) as f:
-            header = yaml.load(f, yaml.Loader)
-        return header
+    def _load_header_from_yaml(self, yaml_path: str) -> dict:
+        with open(yaml_path) as f:
+            headers = yaml.load(f, yaml.Loader)
+        return headers
 
-    def __create_payload(self, tweet_id: str, cursor_token: str) -> str:
-        """Create GET request payload, leading with `?`
+    def _build_payload(self, tweet_id: str, cursor_token: str) -> dict:
+        params = {
+            "variables": {
+                "focalTweetId": "",
+                "referrer": "tweet",
+                "with_rux_injections": False,
+                "includePromotedContent": True,
+                "withCommunity": True,
+                "withQuickPromoteEligibilityTweetFields": True,
+                "withBirdwatchNotes": False,
+                "withSuperFollowsUserFields": True,
+                "withDownvotePerspective": True,
+                "withReactionsMetadata": False,
+                "withReactionsPerspective": False,
+                "withSuperFollowsTweetFields": True,
+                "withVoice": True,
+                "withV2Timeline": True
+            },
+            "features": {
+                "responsive_web_twitter_blue_verified_badge_is_enabled": True,
+                "verified_phone_label_enabled": False,
+                "responsive_web_graphql_timeline_navigation_enabled": True,
+                "unified_cards_ad_metadata_container_dynamic_card_content_query_enabled": True,
+                "tweetypie_unmention_optimization_enabled": True,
+                "responsive_web_uc_gql_enabled": True,
+                "vibe_api_enabled": True,
+                "responsive_web_edit_tweet_api_enabled": True,
+                "graphql_is_translatable_rweb_tweet_is_translatable_enabled": True,
+                "standardized_nudges_misinfo": True,
+                "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": False,
+                "interactive_text_enabled": True,
+                "responsive_web_text_conversations_enabled": False,
+                "responsive_web_enhance_cards_enabled": True
+            }
+        }
 
-        Args:
-            tweet_id (str): _description_
-            cursor_token (str): _description_
-
-        Returns:
-            str: _description_
-        """
+        params["variables"]["focalTweetId"] = tweet_id
 
         if cursor_token:
-            # URL-safe format of "cursor": "<token>",
-            cursor_param = f"%22cursor%22%3A%22{cursor_token}%22%2C"
-        else:
-            cursor_param = ''
+            params["variables"]["cursor"] = cursor_token
 
-        path = f"?variables=%7B%22focalTweetId%22%3A%22{tweet_id}%22%2C{cursor_param}%22referrer%22%3A%22tweet%22%2C%22with_rux_injections%22%3Afalse%2C%22includePromotedContent%22%3Atrue%2C%22withCommunity%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withBirdwatchNotes%22%3Afalse%2C%22withSuperFollowsUserFields%22%3Atrue%2C%22withDownvotePerspective%22%3Atrue%2C%22withReactionsMetadata%22%3Afalse%2C%22withReactionsPerspective%22%3Afalse%2C%22withSuperFollowsTweetFields%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_uc_gql_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22responsive_web_enhance_cards_enabled%22%3Atrue%7D"
+        return params
 
-        return path
-
-    def _create_request_url(self, tweet_id: str, cursor_token: str) -> str:
-        payload = self.__create_payload(tweet_id, cursor_token)
-        if not payload.startswith('?'):
-            payload = '?' + payload
-
-        if self.root_url.endswith('?'):
-            root_url = self.root_url[:-1]
-        else:
-            root_url = self.root_url
-
-        return root_url + payload
-
-    def _find_cursor_token(self, response) -> str:
+    def _extract_token(self, response: dict) -> str:
         tokens = []
         try:
             # get thread data; time line add
@@ -60,7 +70,7 @@ class ThreadScraper:
                 try:
                     token = entry['content']['itemContent']['value']
                     tokens.append(token)
-                except:
+                except Exception:
                     pass
 
         except KeyError:
@@ -69,58 +79,81 @@ class ThreadScraper:
         if len(tokens) > 0:
             token = tokens[0]
         else:
-            token = ''
+            token = None
         return token
 
-    def __get_replies_from_entry(self, thread_entry: dict) -> list[dict]:
-        """Get all replies from an entry
+    def __extract_replies_from_entry(self, entry: dict) -> list[dict]:
+        # an entry -- a reply grop the reply of a tweet and its replies(if it has)
+        # so we need to extract 1. reply of a tweet + 2. reply of a reply
+
+        entry_replies = []
+        try:
+            entry_content = entry['content']
+
+            # loop through a group of reply
+            # to extract the reply ifself and its replies
+            for item in entry_content['items']:
+                reply_detail = item['item']['itemContent']['tweet_results']['result']['legacy']
+                entry_replies.append(reply_detail)
+
+        except Exception:
+            pass
+
+        return entry_replies
+
+    def process_response(self, response: dict) -> list[dict]:
+        replies_in_response = []
+        try:
+            # thread data (tweet and its replies) -- a group of replies in a lazyload
+            raw_thread_data = response['data']['threaded_conversation_with_injections_v2'][
+                'instructions'][0]
+            for entry in raw_thread_data['entries']:
+                replies = self.__extract_replies_from_entry(entry)
+                if len(replies) > 0:
+                    replies_in_response += replies
+        except Exception:
+            pass
+
+        return replies_in_response
+
+    def scrape_lazyload(self, tweet_id: str, cursor_token: str) -> dict:
+        """
+        ref: to use nested dictionary as query params https://stackoverflow.com/questions/48193316/passing-a-nested-dictionary-to-requests-module
+
+        Args:
+            tweet_id (str): _description_
+            cursor_token (str): _description_
+
+        Returns:
+            dict: _description_
         """
 
-        replies = []
+        params = self._build_payload(tweet_id, cursor_token)
+
         try:
-            thread_items = thread_entry['content']['items']
-            for reply in thread_items:
-                reply_tweet = reply['item']['itemContent']['tweet_results']['result']['legacy']
-                replies.append(reply_tweet)
-        except:
-            pass
-        return replies
+            res = requests.get(self.api_url, json=params, headers=self.headers, timeout=5)
+            if res.status_code == 200:
+                response_json = res.json()
+            else:
+                response_json = {}
+        except Exception:
+            response_json = {}
 
-    def _get_replies(self, response: dict) -> list[dict]:
-        replies_in_one_lazyload = []
-        try:
-            thread_data = response['data']['threaded_conversation_with_injections_v2'][
-                'instructions'][0]
-            for entry in thread_data['entries']:
-                replies = self.__get_replies_from_entry(entry)
-                replies_in_one_lazyload += replies
-        except:
-            pass
-
-        return replies_in_one_lazyload
-
-    def _scrape_one_lazy_load(self, tweet_id: str, cursor_token: str = ''):
-        url = self._create_request_url(tweet_id, cursor_token)
-        res = requests.get(url, headers=self.headers, timeout=3)
-
-        if res.status_code == 200:
-            return res.json()
-        else:
-            print(res.status_code)
-            return {}
+        return response_json
 
     def scrape(self, tweet_id: str) -> list[dict]:
-        replies = []
+        all_replies = []
         cursor_token = ''
-        for n in range(self.n_lazy_load):
-            print(f"Lazy load page {n+1}")
-            res = self._scrape_one_lazy_load(tweet_id, cursor_token)
-            cursor_token = self._find_cursor_token(res)
-            lazy_load_replies = self._get_replies(res)
-            replies += lazy_load_replies
-            print(f"> Found {len(lazy_load_replies)} replies")
-            if len(lazy_load_replies) == 0:
+        for i in range(1, self.max_lazyload + 1):
+            print(f"Lazyload page: {i}")
+            res = self.scrape_lazyload(tweet_id, cursor_token)
+            processed_response = self.process_response(res)
+            cursor_token = self._extract_token(res)
+            print(f"- Found {len(processed_response)} replies")
+            all_replies += processed_response
+
+            if cursor_token is None:
                 break
-            if cursor_token == '':
+            if len(processed_response) == 0:
                 break
-        return replies
+        return all_replies
