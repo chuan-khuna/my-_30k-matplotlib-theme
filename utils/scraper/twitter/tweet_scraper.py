@@ -2,9 +2,10 @@ import json
 import yaml
 import requests
 import re
+from .twitter_scraper_base import TwitterScraperBase
 
 
-class TweetScraper:
+class TweetScraper(TwitterScraperBase):
 
     def __init__(self, header_yaml_path: str):
         self.max_lazyload = 10
@@ -14,11 +15,6 @@ class TweetScraper:
         # default twitter search option is searching for top tweets
         # it will reach lazyload limit ~20 pages (not sure)
         self.search_latest_tweets = False
-
-    def _load_header_from_yaml(self, yaml_path: str) -> dict:
-        with open(yaml_path) as f:
-            headers = yaml.load(f, yaml.Loader)
-        return headers
 
     def _build_payload(self, keyword: str, cursor_token: str) -> dict:
         # see more: https://requests.readthedocs.io/en/latest/user/quickstart/
