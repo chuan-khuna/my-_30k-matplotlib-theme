@@ -15,7 +15,10 @@ def save_comments_json(scrape_result: list[dict], output_folder: str = "."):
     # check if a topic have comments
     # todo: refactor, why the api doesn't return comments in that topic
     if len(scrape_result) > 0:
-        topic_id = scrape_result[0]['paging']['topic_id']
+        try:
+            topic_id = scrape_result[0]['paging']['topic_id']
+        except Exception:
+            return
     else:
         return
 

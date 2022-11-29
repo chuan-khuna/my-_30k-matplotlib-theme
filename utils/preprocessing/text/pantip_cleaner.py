@@ -14,6 +14,10 @@ class PantipCleaner(TextCleaner):
         pattern = re.compile(self.pantip_spoil_pattern)
         return re.sub(pattern, "", text)
 
+    def _replace_edit_text(self, text: str) -> str:
+        pattern = re.compile(r"แก้ไขข้อความเมื่อ")
+        return re.sub(pattern, "", text)
+
     def _replace_pantip_spaces(self, text: str) -> str:
         space_patterns = [r"\{\{eem\}\}", r"\{\{em\}\}"]
         for pattern in space_patterns:
@@ -32,6 +36,7 @@ class PantipCleaner(TextCleaner):
 
         # clean pantip component
         text = self._replace_spoil_component(text)
+        text = self._replace_edit_text(text)
         text = self._replace_pantip_spaces(text)
         text = self._unescape_html(text)
         text = self._remove_html_tags(text)
