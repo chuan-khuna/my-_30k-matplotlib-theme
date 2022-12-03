@@ -16,14 +16,7 @@ class Color:
         Args:
             color_hex (str): color in hex format `#rrggbb`
         """
-        self.hex = color_hex.upper()
-
-        # convert color to other formats
-        # self.__to_rgb()
-        # self.__to_srgb()
-        # self.__to_luminance()
-        # self.__to_hsv()
-        # self.__to_lab()
+        self.hex = color_hex
 
     @property
     def hex(self):
@@ -31,7 +24,7 @@ class Color:
 
     @hex.setter
     def hex(self, color_hex: str):
-        self._hex = color_hex
+        self._hex = color_hex.upper()
         # update other formats
         self.__to_rgb()
         self.__to_srgb()
@@ -84,11 +77,11 @@ class Color:
 
     def __calculate_distance(self, color):
         color = self.__to_Color_obj(color)
-        return deltaE_cie76(self.lab, color.lab)
+        return np.round(deltaE_cie76(self.lab, color.lab), Color.DECIMAL_PLACE)
 
     def __calculate_delta_e(self, color):
         color = self.__to_Color_obj(color)
-        return deltaE_ciede2000(self.lab, color.lab)
+        return np.round(deltaE_ciede2000(self.lab, color.lab), Color.DECIMAL_PLACE)
 
     def __calculate_wcag_contrast(self, color):
         color = self.__to_Color_obj(color)
@@ -99,13 +92,13 @@ class Color:
         if l2 > l1:
             l1, l2 = l2, l1
 
-        return np.round((l1 + 0.05) / (l2 + 0.05), 2)
+        return np.round((l1 + 0.05) / (l2 + 0.05), Color.DECIMAL_PLACE)
 
     def distance(self, color: str | ColorType) -> float:
         """Calculate euclidean distance between this color and the another one
 
         Args:
-            color (str | ColorType): _description_
+            color (str | ColorType): color in string format `#rrggbb` of Color obj.
 
         Returns:
             _type_: _description_
@@ -113,10 +106,28 @@ class Color:
 
         return self.__calculate_distance(color)
 
-    def delta_e(self, color) -> float:
+    def delta_e(self, color: str | ColorType) -> float:
         """calculate delta E (CIEDE 2000) distance between this color and the another one
+
+        delta E in https://en.wikipedia.org/wiki/Color_difference
+
+        Args:
+            color (str | ColorType): color in string format `#rrggbb` of Color obj.
+
+        Returns:
+            float: _description_
         """
         return self.__calculate_delta_e(color)
 
-    def wcag_contrast(self, color):
+    def wcag_contrast(self, color: str | ColorType):
+        """calculate WCAG contrast between this color and the another one
+
+        https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
+
+        Args:
+            color (str | ColorType): color in string format `#rrggbb` of Color obj.
+
+        Returns:
+            float: _description_
+        """
         return self.__calculate_wcag_contrast(color)

@@ -1,5 +1,6 @@
 import pytest
 from utils.color.color import Color
+import numpy as np
 # my Color class should be a skimage color wrapper
 
 
@@ -13,6 +14,29 @@ def colors():
 
 def test_initialise_color_by_hex():
     c = Color('#202f66')
+
+
+def test_other_formats_updated_after_setting_color_hex():
+    c = Color('#202f66')
+    old_value = c.__dict__.copy()
+
+    c.hex = '#ff7048'
+    new_value = c.__dict__
+    for k in old_value.keys():
+        res = old_value[k] != new_value[k]
+        if isinstance(res, (bool, np.bool_)):
+            assert res
+        else:
+            assert all(res)
+
+    c.hex = '#202f66'
+    new_value = c.__dict__
+    for k in old_value.keys():
+        res = old_value[k] == new_value[k]
+        if isinstance(res, (bool, np.bool_)):
+            assert res
+        else:
+            assert all(res)
 
 
 def test_color_should_contain_these_attributes():
