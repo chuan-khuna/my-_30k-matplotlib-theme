@@ -13,3 +13,10 @@ def test_extract_palette():
     img_path = os.path.join(THIS_PATH, "misc/Wednesday_room.jpg")
     df = extract_palette(img_path, max_width=64, deltaE_threshold=40)
     assert isinstance(df, pd.DataFrame)
+
+    # the result should have these columns
+    # color: hex str
+    # count: int the number of pixels
+    # group: hex str of nearest colour
+    for col in ['color', 'count', 'nearest_color']:
+        assert col in df.columns
