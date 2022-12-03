@@ -20,3 +20,16 @@ def test_color_should_contain_these_attributes():
 
     # aliases
     assert all(c.hsb == c.hsv)
+
+
+def test_calculate_distance_between_colors():
+    assert False
+
+
+def test_calculate_delta_e_between_colors():
+    assert False
+
+
+def test_calculate_wcag_contrast_between_colors():
+    # https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
+    assert False
