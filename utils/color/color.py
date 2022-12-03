@@ -1,9 +1,14 @@
-import skimage
+from skimage.color import *
 import numpy as np
 import pandas as pd
+from typing import TypeVar
+
+ColorType = TypeVar('Color')
 
 
 class Color:
+
+    DECIMAL_PLACE = 3
 
     def __init__(self, color_hex: str):
         """_summary_
@@ -11,13 +16,31 @@ class Color:
         Args:
             color_hex (str): color in hex format `#rrggbb`
         """
-        self.hex = color_hex
+        self.hex = color_hex.upper()
 
         # convert color to other formats
+        # self.__to_rgb()
+        # self.__to_srgb()
+        # self.__to_luminance()
+        # self.__to_hsv()
+        # self.__to_lab()
+
+    @property
+    def hex(self):
+        return self._hex
+
+    @hex.setter
+    def hex(self, color_hex: str):
+        self._hex = color_hex
+        # update other formats
         self.__to_rgb()
         self.__to_srgb()
         self.__to_luminance()
         self.__to_hsv()
+        self.__to_lab()
+
+    def __repr__(self):
+        return f"Color hex: {self.hex} luminance {self.luminance}"
 
     def __to_rgb(self):
         self.rgb = np.array([
@@ -28,24 +51,72 @@ class Color:
                             dtype=int)
 
     def __to_srgb(self):
-        self.sRGB = np.round(self.rgb / 255.0, 4)
+        self.sRGB = np.round(self.rgb / 255.0, Color.DECIMAL_PLACE)
 
     def __to_luminance(self):
-        # l_rgb = []
-        # for color_sRGB in self.sRGB:
-        #     if color_sRGB <= 0.03928:
-        #         l_rgb.append(color_sRGB / 12.92)
-        #     else:
-        #         l_rgb.append(((color_sRGB + 0.055) / 1.055)**2.4)
-        # luminance_const = np.array([0.2126, 0.7152, 0.0722])
-        # self.luminance = np.sum(luminance_const * np.array(l_rgb))
-        self.luminance = np.round(skimage.color.rgb2gray(self.sRGB), 4)
+        self.luminance = np.round(rgb2gray(self.sRGB), Color.DECIMAL_PLACE)
 
     def __to_hsv(self):
         # HSB: hue(0-360 degree), saturation(0-100 %), brightness(0-100 %)
         # HSV: hue, saturation, value
-        self.hsv = np.round(skimage.color.rgb2hsv(self.sRGB), 4)
+        self.hsv = np.round(rgb2hsv(self.sRGB), Color.DECIMAL_PLACE)
         self.hsb = self.hsv
 
-        self.hsv_decimal = np.round(self.hsv * np.array([360, 100, 100]))
+        self.hsv_decimal = np.array(np.round(self.hsv * np.array([360, 100, 100])), dtype=int)
         self.hsb_decimal = self.hsv_decimal
+
+    def __to_lab(self):
+        self.lab = rgb2lab(self.sRGB)
+
+    def __to_Color_obj(self, color: str | ColorType):
+        """a private function to check and convert input object into Color
+
+        Args:
+            color (str | ColorType): string or Color
+
+        Returns:
+            _type_: Color obj.
+        """
+        if isinstance(color, str):
+            return Color(color)
+        elif isinstance(color, Color):
+            return color
+
+    def __calculate_distance(self, color):
+        color = self.__to_Color_obj(color)
+        return deltaE_cie76(self.lab, color.lab)
+
+    def __calculate_delta_e(self, color):
+        color = self.__to_Color_obj(color)
+        return deltaE_ciede2000(self.lab, color.lab)
+
+    def __calculate_wcag_contrast(self, color):
+        color = self.__to_Color_obj(color)
+
+        l1, l2 = self.luminance, color.luminance
+
+        # L2 should be less than L1 in this formular
+        if l2 > l1:
+            l1, l2 = l2, l1
+
+        return np.round((l1 + 0.05) / (l2 + 0.05), 2)
+
+    def distance(self, color: str | ColorType) -> float:
+        """Calculate euclidean distance between this color and the another one
+
+        Args:
+            color (str | ColorType): _description_
+
+        Returns:
+            _type_: _description_
+        """
+
+        return self.__calculate_distance(color)
+
+    def delta_e(self, color) -> float:
+        """calculate delta E (CIEDE 2000) distance between this color and the another one
+        """
+        return self.__calculate_delta_e(color)
+
+    def wcag_contrast(self, color):
+        return self.__calculate_wcag_contrast(color)

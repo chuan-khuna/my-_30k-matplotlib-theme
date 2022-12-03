@@ -3,6 +3,14 @@ from utils.color.color import Color
 # my Color class should be a skimage color wrapper
 
 
+@pytest.fixture
+def colors():
+    c1, c2 = Color('#202f66'), Color('#ff7048')
+    yield c1, c2
+    del c1
+    del c2
+
+
 def test_initialise_color_by_hex():
     c = Color('#202f66')
 
@@ -22,14 +30,44 @@ def test_color_should_contain_these_attributes():
     assert all(c.hsb == c.hsv)
 
 
-def test_calculate_distance_between_colors():
-    assert False
+def test_repr_function(colors):
+    c1, c2 = colors
+    # at least, calling this object in Jupyter lab
+    # should be readable by human
+    assert c1.hex in c1.__repr__()
+    assert c2.hex in c2.__repr__()
 
 
-def test_calculate_delta_e_between_colors():
-    assert False
+# Test calling functions to calculate
+# various type of colour distance metrics
+# error should not occur
 
 
-def test_calculate_wcag_contrast_between_colors():
-    # https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
-    assert False
+def test_calculate_distance_between_colors(colors):
+    c1, c2 = colors
+
+    # calculate by using Color object
+    c1.distance(c2)
+
+    # calculate by using hex string
+    c1.distance(c2.hex)
+
+
+def test_calculate_delta_e_between_colors(colors):
+    c1, c2 = colors
+
+    # calculate by using Color object
+    c1.delta_e(c2)
+
+    # calculate by using hex string
+    c1.delta_e(c2.hex)
+
+
+def test_calculate_wcag_contrast_between_colors(colors):
+    c1, c2 = colors
+
+    # calculate by using Color object
+    c1.wcag_contrast(c2)
+
+    # calculate by using hex string
+    c1.wcag_contrast(c2.hex)
