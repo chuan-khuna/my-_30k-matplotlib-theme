@@ -26,8 +26,8 @@ def __rgb_to_hex(rgb):
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
-def __extract_palette_image_array(img_array: np.array,
-                                  deltaE_threshold: int | float = 20) -> pd.DataFrame:
+def extract_palette_from_img_array(img_array: np.array,
+                                   deltaE_threshold: int | float = 20) -> pd.DataFrame:
 
     # flatten image
     img_arr = img_array.reshape((np.product(img_array.shape[:2]), 3))
@@ -74,12 +74,14 @@ def __extract_palette_image_array(img_array: np.array,
     return df
 
 
-def extract_palette(image_path: str, max_width: int = 256, deltaE_threshold: int | float = 20):
+def extract_palette(image_path: str,
+                    max_width: int = 128,
+                    deltaE_threshold: int | float = 20) -> pd.DataFrame:
 
     img = __load_image(image_path, max_width)
     img_arr = np.array(img)
 
-    df = __extract_palette_image_array(img_arr, deltaE_threshold=deltaE_threshold)
+    df = extract_palette_from_img_array(img_arr, deltaE_threshold=deltaE_threshold)
 
     return df
 
