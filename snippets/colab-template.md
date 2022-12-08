@@ -45,6 +45,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 
 import json
 import re
+from tqdm.notebook import trange, tqdm
 ```
 
 import my libraries
