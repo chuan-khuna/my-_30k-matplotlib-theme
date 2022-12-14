@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report
+import tensorflow as tf
 
 
 def model_report(hist,
@@ -77,5 +78,9 @@ def model_report(hist,
 
     plt.tight_layout()
     if save_path:
-        fig.savefig(save_path, dpi=dpi*1.5)
+        fig.savefig(save_path, dpi=dpi * 1.5)
     plt.show()
+
+
+def save_model_graph(model, path):
+    tf.keras.utils.plot_model(model, show_shapes=True, to_file=path)
