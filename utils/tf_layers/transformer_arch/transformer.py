@@ -1,72 +1,39 @@
 # reference
 # https://keras.io/examples/nlp/text_classification_with_transformer/
-# Ref: Attention is All You Need (Vaswani et al)
+# https://www.tensorflow.org/text/tutorials/transformer
+# Attention is All You Need (Vaswani et al)
 
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.layers import Dense, MultiHeadAttention
+from .attention import CrossAttentionBlock, SelfAttentionBlock, MaskedSelfAttentionBlock
 
 
-class TransformerBlock(keras.layers.Layer):
-    """A Transformer Block with multi-headed self-attention
+class TransformerEncoder(keras.layers.Layer):
 
-    - multi-headed self-attention, ie q, k, v are the same
+    def __init__(self, embedding_dim, num_heads=6, ff_nn=None):
+        super().__init__()
 
-    Ref: Attention is All You Need (Vaswani et al)
-
-    How to use:
-
-    Embedding()
-    TransformerBlock() -> shape: batch, seq_length, embedding_dim
-
-    Args:
-        keras (_type_): _description_
-    """
-
-    def __init__(self, embedding_dim: int, num_heads: int = 6, ff_nn=None):
-        """A Transformer Block
-
-        Args:
-            embedding_dim (int): _description_
-            num_heads (int, optional): _description_. Defaults to 6.
-            ff_nn (_type_, optional): `Sequential` model with dense layers `[Dense, Dense, ...]` for adding non-linearity to the Transformer output; `ff_nn` doesn't have to consist the last `Dense(embedding_dim)`
-            Defaults to None (add one Dense(32, relu)).
-        """
-        super(TransformerBlock, self).__init__()
-
-        self.attention = MultiHeadAttention(num_heads=num_heads, key_dim=embedding_dim)
-        self.layer_norm1 = keras.layers.LayerNormalization(epsilon=1e-6)
-        self.layer_norm2 = keras.layers.LayerNormalization(epsilon=1e-6)
-        self.attention_dense = Dense(embedding_dim)
+        self.attention_block = SelfAttentionBlock(num_heads=num_heads, key_dim=embedding_dim)
 
         if ff_nn is None:
-            self.ff_nn = keras.models.Sequential([Dense(32, activation='relu')])
+            self.ff_nn = keras.models.Sequential([keras.layers.Dense(32, activation='relu')])
         else:
             self.ff_nn = ff_nn
+
+        self.attention_dense = keras.layers.Dense(embedding_dim)
+        self.tfm_layernorm = keras.layers.LayerNormalization()
 
     def get_config(self):
         config = super().get_config()
         return config
 
-    def call(self, inputs):
-        """_summary_
+    def call(self, x):
+        # perform self-attention mechanism
+        attn_out = self.attention_block(x)
 
-        Args:
-            inputs (_type_): vectors from embedding-like layer, eg Embedding, Conv1D
-
-        Returns:
-            _type_: _description_
-        """
-
-        # perform self-attention mechanism: query, key, value are the same
-        attention_out = self.attention(inputs, inputs)
-        # residual connection
-        attention_out = self.layer_norm1(inputs + attention_out)
-
-        # add non-linearity and residual connection
-        dense_out = self.ff_nn(attention_out)
+        # add non-liearity; residual connection
+        dense_out = self.ff_nn(attn_out)
         dense_out = self.attention_dense(dense_out)
-        out = self.layer_norm2(inputs + dense_out)
+        x = self.tfm_layernorm(x + dense_out)
 
-        # shape: batch_size, sequence_length, embedding_dim
-        return out
+        return x
