@@ -61,7 +61,7 @@ class TransformerBlock(keras.layers.Layer):
 
         # perform self-attention mechanism: query, key, value are the same
         attention_out = self.attention(inputs, inputs)
-        #  residual connection
+        # residual connection
         attention_out = self.layer_norm1(inputs + attention_out)
 
         # add non-linearity and residual connection
