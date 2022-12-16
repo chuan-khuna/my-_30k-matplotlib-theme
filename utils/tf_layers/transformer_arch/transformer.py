@@ -17,8 +17,7 @@ class TransformerBlock(keras.layers.Layer):
     How to use:
 
     Embedding()
-    TransformerBlock()
-    GlobalAveragePooling1D()
+    TransformerBlock() -> shape: batch, seq_length, embedding_dim
 
     Args:
         keras (_type_): _description_
