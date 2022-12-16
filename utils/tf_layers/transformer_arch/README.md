@@ -59,5 +59,7 @@ The **Encoder-Decoder** architecture
 tfme = TransformerEncoder(EMBEDDING_SHAPE, num_heads=8)
 tfmd = TransformerDecoder(EMBEDDING_SHAPE, num_heads=8)
 tfmd(em_x, em_context)
+
+# em_context is the output from tfme(em_x)
 # > batch_size, seq_length, embedding_dim
 ```
