@@ -30,7 +30,7 @@ class TransformerBlock(keras.layers.Layer):
         Args:
             embedding_dim (int): _description_
             num_heads (int, optional): _description_. Defaults to 6.
-            ff_nn (_type_, optional): `Sequential` model with dense layers [Dense, Dense] for adding non-linearity to the Transformer output; `ff_nn` doesn't have to consist the last `Dense(embedding_dim)`
+            ff_nn (_type_, optional): `Sequential` model with dense layers `[Dense, Dense, ...]` for adding non-linearity to the Transformer output; `ff_nn` doesn't have to consist the last `Dense(embedding_dim)`
             Defaults to None (add one Dense(32, relu)).
         """
         super(TransformerBlock, self).__init__()
@@ -67,6 +67,6 @@ class TransformerBlock(keras.layers.Layer):
         # add non-linearity and residual connection
         dense_out = self.ff_nn(attention_out)
         dense_out = self.attention_dense(dense_out)
-        out = self.layer_norm1(inputs + dense_out)
+        out = self.layer_norm2(inputs + dense_out)
 
         return out
