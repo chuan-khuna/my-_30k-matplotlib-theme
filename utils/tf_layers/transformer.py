@@ -14,6 +14,12 @@ class TransformerBlock(keras.layers.Layer):
 
     Ref: Attention is All You Need (Vaswani et al)
 
+    How to use:
+
+    Embedding()
+    TransformerBlock()
+    GlobalAveragePooling1D()
+
     Args:
         keras (_type_): _description_
     """
@@ -44,6 +50,14 @@ class TransformerBlock(keras.layers.Layer):
         return config
 
     def call(self, inputs):
+        """_summary_
+
+        Args:
+            inputs (_type_): vectors from embedding-like layer, eg Embedding, Conv1D
+
+        Returns:
+            _type_: _description_
+        """
 
         # perform self-attention mechanism: query, key, value are the same
         attention_out = self.attention(inputs, inputs)
