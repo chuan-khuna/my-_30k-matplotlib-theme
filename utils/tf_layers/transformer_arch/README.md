@@ -58,6 +58,6 @@ The **Encoder-Decoder** architecture
 ```py
 tfme = TransformerEncoder(EMBEDDING_SHAPE, num_heads=8)
 tfmd = TransformerDecoder(EMBEDDING_SHAPE, num_heads=8)
-cross_att(em_x, em_context)
+tfmd(em_x, em_context)
 # > batch_size, seq_length, embedding_dim
 ```
