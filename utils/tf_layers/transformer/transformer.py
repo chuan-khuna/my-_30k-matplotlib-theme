@@ -69,4 +69,5 @@ class TransformerBlock(keras.layers.Layer):
         dense_out = self.attention_dense(dense_out)
         out = self.layer_norm2(inputs + dense_out)
 
+        # shape: batch_size, sequence_length, embedding_dim
         return out
