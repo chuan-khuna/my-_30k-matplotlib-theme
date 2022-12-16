@@ -3,6 +3,13 @@ from tensorflow import keras
 
 
 class BaseMultiHeadedAttentionBlock(keras.layers.Layer):
+    """An Attention Block consists operations:
+    - perform attention mechanism
+    - residual connection x, attention(x)
+
+    Args:
+        keras (_type_): _description_
+    """
 
     def __init__(self, **kwargs):
         super().__init__()

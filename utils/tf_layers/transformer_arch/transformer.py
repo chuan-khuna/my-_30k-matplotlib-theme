@@ -62,6 +62,7 @@ class TransformerDecoder(keras.layers.Layer):
         return config
 
     def call(self, x, context):
+        # perform masked-self-attention mechanism
         x = self.masked_attention_block(x)
         x = self.cross_attention_block(x=x, context=context)
 
