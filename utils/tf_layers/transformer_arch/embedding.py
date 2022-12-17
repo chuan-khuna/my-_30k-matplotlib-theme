@@ -1,4 +1,5 @@
 # ref: https://machinelearningmastery.com/the-transformer-positional-encoding-layer-in-keras-part-2/
+# https://www.tensorflow.org/text/tutorials/transformer#the_embedding_and_positional_encoding_layer
 
 import tensorflow as tf
 from tensorflow import keras
@@ -61,4 +62,8 @@ class FixedPositionalEncoding(keras.layers.Layer):
         seq_length = tf.shape(x)[-2]
         positions = tf.range(start=0, limit=seq_length, delta=1)
         pos_encoding = self.position_encoding_layer(positions)
-        return x + pos_encoding
+
+        # my old code
+        # return x + pos_encoding
+
+        return x + pos_encoding[tf.newaxis, :seq_length, :]
