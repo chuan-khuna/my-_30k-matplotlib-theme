@@ -62,31 +62,14 @@ class FixedPositionalEncoding(keras.layers.Layer):
         return pos_embedding
 
     def call(self, x):
-        """_summary_
-
-        Args:
-            x (_type_): `x` is a list of embedding vectors, ie `(seq length, embedding dim)`
-
-        Returns:
-            _type_: x + positional encodings
-        """
-        seq_length = tf.shape(x)[-2]
-        batch_size = tf.shape(x)[0]
+        seq_length = tf.shape(x)[1]
 
         positions = tf.range(start=0, limit=seq_length, delta=1)
         pos_encoding = self.position_encoding_layer(positions)
-
-        # duplicate positional encoding `batch_size` times
-        # how to write this part more efficiently
-        pos_encoding = tf.repeat([pos_encoding[:seq_length, :]], batch_size, axis=0)
-
-        # my old code is just simply add:
-        # x + pos_encoding
-        # it works well with non-masking data
-        # but it doesn't pass masking data through this layer
+        pos_encoding = pos_encoding[tf.newaxis, :seq_length, :]
 
         # scaling
         # x *= tf.math.sqrt(tf.cast(self.embed_dim, tf.float32))
 
-        x = self.add([x, pos_encoding])
+        x = x + pos_encoding
         return x

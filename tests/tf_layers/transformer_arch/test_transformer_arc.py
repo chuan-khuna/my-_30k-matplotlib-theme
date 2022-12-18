@@ -39,8 +39,10 @@ def test_whether_mask_pass_through_layers(seq):
     tfm_e = TransformerEncoder(EMBEDDING_DIM, num_heads=TFM_HEAD)
 
     em_seq = em_layer(seq)
-    mask1 = em_seq._keras_mask
     pos_seq = pos_layer(em_seq)
-    mask2 = pos_seq._keras_mask
     tfm_seq = tfm_e(pos_seq)
-    mask3 = tfm_seq._keras_mask
+
+    assert get_tensor_shape(tfm_seq) == get_tensor_shape(em_seq)
+    assert get_tensor_shape(tfm_seq)[0] == BATCH_SIZE
+    assert get_tensor_shape(tfm_seq)[1] == SEQ_LENGTH
+    assert get_tensor_shape(tfm_seq)[2] == EMBEDDING_DIM
