@@ -32,6 +32,7 @@ class TransformerEncoder(keras.layers.Layer):
     def call(self, x):
         # perform self-attention mechanism
         x = self.attention_block(x)
+        self.attn_scores = self.attention_block.attn_scores
 
         # add non-liearity; residual connection
         dense_out = self.ff_nn(x)
