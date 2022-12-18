@@ -44,9 +44,10 @@ class TransformerEncoder(keras.layers.Layer):
         dense_out = self.ff_nn(x)
         dense_out = self.dense(dense_out)
         dense_out = self.dropout(dense_out)
-        x =  self.residual_add([x, dense_out])
+        x = self.residual_add([x, dense_out])
         x = self.tfm_layernorm(x)
 
+        # shape: batch_size, seq_length, embedding_dim (=embedding layer's shape)
         return x
 
 
@@ -89,7 +90,7 @@ class TransformerDecoder(keras.layers.Layer):
         dense_out = self.dense(dense_out)
         dense_out = self.dropout(dense_out)
 
-        x =  self.residual_add([x, dense_out])
+        x = self.residual_add([x, dense_out])
         x = self.tfm_layernorm(x)
 
         return x

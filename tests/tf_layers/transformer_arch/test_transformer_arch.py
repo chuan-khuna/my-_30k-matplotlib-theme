@@ -11,7 +11,7 @@ from tensorflow import keras
 from tensorflow.keras.layers import Embedding
 
 from utils.tf_layers.transformer_arch.embedding import FixedPositionalEncoding
-from utils.tf_layers.transformer_arch.transformer import TransformerEncoder
+from utils.tf_layers.transformer_arch.transformer import TransformerEncoder, TransformerDecoder
 
 TEST_PATH = os.path.dirname(__file__)
 
@@ -37,12 +37,15 @@ def test_whether_mask_pass_through_layers(seq):
     em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
     pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
     tfm_e = TransformerEncoder(EMBEDDING_DIM, num_heads=TFM_HEAD)
+    tfm_d = TransformerDecoder(EMBEDDING_DIM, num_heads=TFM_HEAD)
 
     em_seq = em_layer(seq)
     pos_seq = pos_layer(em_seq)
-    tfm_seq = tfm_e(pos_seq)
+    tfm_e_seq = tfm_e(pos_seq)
+    tfm_d_seq = tfm_d(pos_seq, pos_seq)
 
-    assert get_tensor_shape(tfm_seq) == get_tensor_shape(em_seq)
-    assert get_tensor_shape(tfm_seq)[0] == BATCH_SIZE
-    assert get_tensor_shape(tfm_seq)[1] == SEQ_LENGTH
-    assert get_tensor_shape(tfm_seq)[2] == EMBEDDING_DIM
+    assert get_tensor_shape(tfm_e_seq) == get_tensor_shape(em_seq)
+    assert get_tensor_shape(tfm_e_seq)[0] == BATCH_SIZE
+    assert get_tensor_shape(tfm_e_seq)[1] == SEQ_LENGTH
+    assert get_tensor_shape(tfm_e_seq)[2] == EMBEDDING_DIM
+    assert get_tensor_shape(tfm_e_seq) == get_tensor_shape(tfm_d_seq)
