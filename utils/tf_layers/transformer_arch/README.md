@@ -8,11 +8,6 @@ references:
 - https://keras.io/examples/nlp/text_classification_with_transformer/
 - https://www.youtube.com/watch?v=ptuGllU5SQQ
 
-## Todo
-
-- Learn about **masking**, How to implement it in my code
-  - problems: this verion of code doesn't learn anything from training
-
 ## Notes about the output dimensions
 
 Suppose that I have data processed by `Embedding` layer

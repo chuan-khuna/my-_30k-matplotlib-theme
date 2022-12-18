@@ -75,6 +75,7 @@ class FixedPositionalEncoding(keras.layers.Layer):
         pos_encoding = self.position_encoding_layer(positions)
 
         # duplicate positional encoding `batch_size` times
+        # how to write this part more efficiently
         pos_encoding = tf.repeat([pos_encoding[:seq_length, :]], batch_size, axis=0)
 
         # my old code is just simply add:
