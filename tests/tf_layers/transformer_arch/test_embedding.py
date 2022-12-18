@@ -50,6 +50,15 @@ def test_embedding_layer_output_shape(seq):
     assert get_tensor_shape(em_seq) == DATA_SHAPE
 
 
+def test_embedding_layer_masking(zero_seq):
+    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
+    em_seq = em_layer(zero_seq)
+
+    # Since all of values in the sequence are zero
+    # the masking values should be all False
+    assert not em_seq._keras_mask.numpy().all()
+
+
 def test_embedding_with_positional_encoding_output_shape(seq):
     # x = Embedding(x)
     # x = PosEnc(x)
@@ -66,3 +75,24 @@ def test_embedding_with_positional_encoding_output_shape(seq):
     assert (mask1.numpy() == mask2.numpy()).all()
     assert get_tensor_shape(pos_em_seq) == DATA_SHAPE
     assert get_tensor_shape(pos_em_seq) == get_tensor_shape(em_seq)
+
+
+def test_positional_encoding_value(zero_seq):
+    # x = Embedding(x)
+    # x = PosEnc(x)
+    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
+    pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
+
+    # masking should be passed through positional encoding layer
+    # masking should be preserved
+    em_seq = em_layer(zero_seq)
+    mask1 = em_seq._keras_mask
+    pos_em_seq = pos_layer(em_seq)
+    mask2 = pos_em_seq._keras_mask
+
+    # positional encoding should be added to the embedding value
+    assert (em_seq.numpy() != pos_em_seq.numpy()).any()
+    # mask should be preserved
+    assert (mask1.numpy() == mask2.numpy()).all()
+    # mask should be all False
+    assert not em_seq._keras_mask.numpy().all()
