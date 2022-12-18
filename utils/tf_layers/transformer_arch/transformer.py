@@ -17,11 +17,14 @@ class TransformerEncoder(keras.layers.Layer):
 
         self.attention_block = SelfAttentionBlock(num_heads=num_heads, key_dim=embedding_dim)
 
+        # feed-forward block at the top of attention
+        # to add non-linearity and produce an output as the same shape of the input
         if ff_nn is None:
             self.ff_nn = keras.models.Sequential([keras.layers.Dense(32, activation='relu')])
         else:
             self.ff_nn = ff_nn
         self.dense = keras.layers.Dense(embedding_dim)
+
         self.tfm_layernorm = keras.layers.LayerNormalization()
 
     def get_config(self):
@@ -52,6 +55,8 @@ class TransformerDecoder(keras.layers.Layer):
                                                                key_dim=embedding_dim)
         self.cross_attention_block = CrossAttentionBlock(num_heads=num_heads, key_dim=embedding_dim)
 
+        # feed-forward block at the top of attention
+        # to add non-linearity and produce an output as the same shape of the input
         if ff_nn is None:
             self.ff_nn = keras.models.Sequential([keras.layers.Dense(32, activation='relu')])
         else:
