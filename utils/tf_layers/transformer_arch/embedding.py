@@ -5,6 +5,8 @@
 # preprocessing token to vector - https://www.tensorflow.org/api_docs/python/tf/keras/layers/TextVectorization
 # Embedding masking - https://www.tensorflow.org/text/tutorials/transformer#the_embedding_and_positional_encoding_layer
 # evaluation metrics - https://www.tensorflow.org/text/tutorials/transformer#set_up_the_loss_and_metrics
+# RNN + Embedding Use masking to handle the variable sequence lengths -  https://www.tensorflow.org/text/tutorials/text_classification_rnn
+# https://www.tensorflow.org/guide/keras/masking_and_padding
 
 import tensorflow as tf
 from tensorflow import keras
@@ -36,9 +38,16 @@ class FixedPositionalEncoding(keras.layers.Layer):
             weights=[positional_encoding_weights],
             trainable=False)
 
+        self.__add = keras.layers.Add()
+
     def get_config(self):
         config = super().get_config()
         return config
+
+    # def compute_mask(self, inputs, mask=None):
+    #     if not self.mask_zero:
+    #         return None
+    #     return tf.not_equal(inputs, 0)
 
     def __get_embedding_matrix(self, seq_length: int, embed_dim: int, n: int) -> np.array:
         pos_embedding = np.zeros((seq_length, embed_dim))
@@ -70,5 +79,6 @@ class FixedPositionalEncoding(keras.layers.Layer):
 
         # my old code
         # return x + pos_encoding
+        x = self.__add([x, pos_encoding[tf.newaxis, :seq_length, :]])
 
-        return x + pos_encoding[tf.newaxis, :seq_length, :]
+        return x

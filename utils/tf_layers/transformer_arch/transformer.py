@@ -28,6 +28,7 @@ class TransformerEncoder(keras.layers.Layer):
         self.dense = keras.layers.Dense(embedding_dim)
         self.dropout = keras.layers.Dropout(0.1)
 
+        self.residual_add = keras.layers.Add()
         self.tfm_layernorm = keras.layers.LayerNormalization()
 
     def get_config(self):
@@ -43,7 +44,8 @@ class TransformerEncoder(keras.layers.Layer):
         dense_out = self.ff_nn(x)
         dense_out = self.dense(dense_out)
         dense_out = self.dropout(dense_out)
-        x = self.tfm_layernorm(x + dense_out)
+        x =  self.residual_add([x, dense_out])
+        x = self.tfm_layernorm(x)
 
         return x
 
@@ -68,6 +70,7 @@ class TransformerDecoder(keras.layers.Layer):
         self.dense = keras.layers.Dense(embedding_dim)
         self.dropout = keras.layers.Dropout(0.1)
 
+        self.residual_add = keras.layers.Add()
         self.tfm_layernorm = keras.layers.LayerNormalization()
 
     def get_config(self):
@@ -85,6 +88,8 @@ class TransformerDecoder(keras.layers.Layer):
         dense_out = self.ff_nn(x)
         dense_out = self.dense(dense_out)
         dense_out = self.dropout(dense_out)
-        x = self.tfm_layernorm(x + dense_out)
+
+        x =  self.residual_add([x, dense_out])
+        x = self.tfm_layernorm(x)
 
         return x
