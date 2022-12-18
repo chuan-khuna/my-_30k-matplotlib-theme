@@ -25,9 +25,14 @@ class BaseMultiHeadedAttentionBlock(keras.layers.Layer):
 class SelfAttentionBlock(BaseMultiHeadedAttentionBlock):
 
     def call(self, x):
-        attn_output = self.attention(query=x, key=x, value=x)
+        attn_output, self.attn_scores = self.attention(query=x,
+                                                       key=x,
+                                                       value=x,
+                                                       return_attention_scores=True)
         x = self.residual_add([x, attn_output])
         x = self.layernorm(attn_output)
+
+        # shape: batch_size, seq_length, embedding_dim
         return x
 
 
@@ -37,6 +42,8 @@ class MaskedSelfAttentionBlock(BaseMultiHeadedAttentionBlock):
         attn_output = self.attention(query=x, key=x, value=x, use_causal_mask=True)
         x = self.residual_add([x, attn_output])
         x = self.layernorm(attn_output)
+
+        # shape: batch_size, seq_length, embedding_dim
         return x
 
 
@@ -49,4 +56,6 @@ class CrossAttentionBlock(BaseMultiHeadedAttentionBlock):
                                                        return_attention_scores=True)
         x = self.residual_add([x, attn_output])
         x = self.layernorm(attn_output)
+
+        # shape: batch_size, context_length, embedding_dim
         return x

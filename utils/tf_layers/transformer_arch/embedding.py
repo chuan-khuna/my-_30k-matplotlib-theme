@@ -1,6 +1,13 @@
 # ref: https://machinelearningmastery.com/the-transformer-positional-encoding-layer-in-keras-part-2/
 # https://www.tensorflow.org/text/tutorials/transformer#the_embedding_and_positional_encoding_layer
 
+# don't forget to add mask_zero at the Embedding layer
+# preprocessing token to vector - https://www.tensorflow.org/api_docs/python/tf/keras/layers/TextVectorization
+# Embedding masking - https://www.tensorflow.org/text/tutorials/transformer#the_embedding_and_positional_encoding_layer
+# evaluation metrics - https://www.tensorflow.org/text/tutorials/transformer#set_up_the_loss_and_metrics
+# RNN + Embedding Use masking to handle the variable sequence lengths -  https://www.tensorflow.org/text/tutorials/text_classification_rnn
+# https://www.tensorflow.org/guide/keras/masking_and_padding
+
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
@@ -11,7 +18,7 @@ class FixedPositionalEncoding(keras.layers.Layer):
 
     How to use:
 
-    model.add(Embedding(...))
+    model.add(Embedding(..., mask_zero=True))
     model.add(FixedPositionalEncoding(....))
 
     Ref: Attention is All You Need (Vaswani et al)
@@ -30,6 +37,8 @@ class FixedPositionalEncoding(keras.layers.Layer):
             output_dim=embed_dim,
             weights=[positional_encoding_weights],
             trainable=False)
+
+        self.__add = keras.layers.Add()
 
     def get_config(self):
         config = super().get_config()
@@ -60,10 +69,18 @@ class FixedPositionalEncoding(keras.layers.Layer):
             _type_: x + positional encodings
         """
         seq_length = tf.shape(x)[-2]
+        batch_size = tf.shape(x)[0]
+
         positions = tf.range(start=0, limit=seq_length, delta=1)
         pos_encoding = self.position_encoding_layer(positions)
 
-        # my old code
-        # return x + pos_encoding
+        # duplicate positional encoding `batch_size` times
+        pos_encoding = tf.repeat([pos_encoding[:seq_length, :]], batch_size, axis=0)
 
-        return x + pos_encoding[tf.newaxis, :seq_length, :]
+        # my old code is just simply add:
+        # x + pos_encoding
+        # it works well with non-masking data
+        # but it doesn't pass masking data through this layer
+
+        x = self.__add([x, pos_encoding])
+        return x
