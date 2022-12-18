@@ -21,8 +21,7 @@ class TransformerEncoder(keras.layers.Layer):
             self.ff_nn = keras.models.Sequential([keras.layers.Dense(32, activation='relu')])
         else:
             self.ff_nn = ff_nn
-
-        self.attention_dense = keras.layers.Dense(embedding_dim)
+        self.dense = keras.layers.Dense(embedding_dim)
         self.tfm_layernorm = keras.layers.LayerNormalization()
 
     def get_config(self):
@@ -36,7 +35,10 @@ class TransformerEncoder(keras.layers.Layer):
 
         # add non-liearity; residual connection
         dense_out = self.ff_nn(x)
-        dense_out = self.attention_dense(dense_out)
+        dense_out = self.dense(dense_out)
+        # todo
+        # add dropout here
+        # Dropout()
         x = self.tfm_layernorm(x + dense_out)
 
         return x
@@ -54,7 +56,7 @@ class TransformerDecoder(keras.layers.Layer):
             self.ff_nn = keras.models.Sequential([keras.layers.Dense(32, activation='relu')])
         else:
             self.ff_nn = ff_nn
-        self.attention_dense = keras.layers.Dense(embedding_dim)
+        self.dense = keras.layers.Dense(embedding_dim)
 
         self.tfm_layernorm = keras.layers.LayerNormalization()
 
@@ -70,7 +72,10 @@ class TransformerDecoder(keras.layers.Layer):
         self.attn_scores = self.cross_attention_block.attn_scores
 
         dense_out = self.ff_nn(x)
-        dense_out = self.attention_dense(dense_out)
+        dense_out = self.dense(dense_out)
+        # todo
+        # add dropout here
+        # Dropout()
         x = self.tfm_layernorm(x + dense_out)
 
         return x
