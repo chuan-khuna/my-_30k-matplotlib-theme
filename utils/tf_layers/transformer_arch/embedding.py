@@ -44,11 +44,6 @@ class FixedPositionalEncoding(keras.layers.Layer):
         config = super().get_config()
         return config
 
-    # def compute_mask(self, inputs, mask=None):
-    #     if not self.mask_zero:
-    #         return None
-    #     return tf.not_equal(inputs, 0)
-
     def __get_embedding_matrix(self, seq_length: int, embed_dim: int, n: int) -> np.array:
         pos_embedding = np.zeros((seq_length, embed_dim))
 
@@ -74,11 +69,18 @@ class FixedPositionalEncoding(keras.layers.Layer):
             _type_: x + positional encodings
         """
         seq_length = tf.shape(x)[-2]
+        batch_size = tf.shape(x)[0]
+
         positions = tf.range(start=0, limit=seq_length, delta=1)
         pos_encoding = self.position_encoding_layer(positions)
 
-        # my old code
-        # return x + pos_encoding
-        x = self.__add([x, pos_encoding[tf.newaxis, :seq_length, :]])
+        # duplicate positional encoding `batch_size` times
+        pos_encoding = tf.repeat([pos_encoding[:seq_length, :]], batch_size, axis=0)
 
+        # my old code is just simply add:
+        # x + pos_encoding
+        # it works well with non-masking data
+        # but it doesn't pass masking data through this layer
+
+        x = self.__add([x, pos_encoding])
         return x
