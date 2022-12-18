@@ -8,6 +8,11 @@ references:
 - https://keras.io/examples/nlp/text_classification_with_transformer/
 - https://www.youtube.com/watch?v=ptuGllU5SQQ
 
+## Todo
+
+- [ ] Maybe Tensorflow tutorial is the best way to write "Transformer", Should I refactor my code to that way?
+- [ ] Add `batcher` -> a wrapper to run forward pass with `model(x)` (note: `x` need to be **batched data**)
+
 ## Notes about the output dimensions
 
 Suppose that I have data processed by `Embedding` layer
