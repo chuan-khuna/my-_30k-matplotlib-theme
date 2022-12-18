@@ -38,6 +38,9 @@ To add "Positional Encoding" -- the `sin, cos` encoding in **Attention is All Yo
 
 ```py
 pos_encoding = FixedPositionalEncoding(MAX_SEQ_LENGTH, EMBEDDING_SHAPE)
+# the sequence length parameter in PositionalEncoding can be a large number say 2048
+# matching input-encoding dimension before adding
+
 # > batch_size, seq_length, embedding_dim
 
 # Embedding()
