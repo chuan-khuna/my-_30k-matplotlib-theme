@@ -28,7 +28,9 @@ class FixedPositionalEncoding(keras.layers.Layer):
     """
 
     def __init__(self, seq_length: int, embed_dim: int, n: int = 10000):
-        super(FixedPositionalEncoding, self).__init__()
+        super().__init__()
+
+        self.embed_dim = embed_dim
 
         # create layer with fixed weights
         positional_encoding_weights = self.__get_embedding_matrix(seq_length, embed_dim, n)
@@ -38,7 +40,7 @@ class FixedPositionalEncoding(keras.layers.Layer):
             weights=[positional_encoding_weights],
             trainable=False)
 
-        self.__add = keras.layers.Add()
+        self.add = keras.layers.Add()
 
     def get_config(self):
         config = super().get_config()
@@ -83,5 +85,8 @@ class FixedPositionalEncoding(keras.layers.Layer):
         # it works well with non-masking data
         # but it doesn't pass masking data through this layer
 
-        x = self.__add([x, pos_encoding])
+        # scaling
+        # x *= tf.math.sqrt(tf.cast(self.embed_dim, tf.float32))
+
+        x = self.add([x, pos_encoding])
         return x
