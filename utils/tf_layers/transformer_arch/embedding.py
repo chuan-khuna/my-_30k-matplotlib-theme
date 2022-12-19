@@ -13,6 +13,37 @@ from tensorflow import keras
 import numpy as np
 
 
+def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int) -> np.array:
+
+    # PE(pos, 2i) = sin( pos/(10000**(2i/dim)) )
+    # PE(pos, 2i+1) = cos( pos/(10000**(2i/dim)) )
+    # i = i-th dimension of embedding vector
+
+    # i
+    dimensions = np.arange(embed_dim)
+    # masking odd, even i; 2i
+    even_mask = dimensions % 2 == 0
+    odd_mask = dimensions % 2 == 1
+    # shape (1, dim)
+    dimensions = dimensions[np.newaxis, :]
+
+    # pos
+    positions = np.arange(seq_length)
+    # shape (pos, 1)
+    positions = positions[:, np.newaxis]
+
+    dimensions = dimensions / embed_dim
+    rate = 1 / (n**(dimensions))
+    # shape (pos, dim)
+    rads = positions * rate
+
+    positional_encoding = np.sin(rads) * even_mask + np.cos(rads) * odd_mask
+
+    assert positional_encoding.shape == (seq_length, embed_dim)
+
+    return positional_encoding
+
+
 class FixedPositionalEncoding(keras.layers.Layer):
     """Add "Positional Encodings" to embedding vectors
 
@@ -31,44 +62,13 @@ class FixedPositionalEncoding(keras.layers.Layer):
         super().__init__()
 
         self.embed_dim = embed_dim
-        self.positional_encoding = self.get_positional_encoding_values(
-            seq_length, self.embed_dim, n)
+        self.positional_encoding = get_positional_encoding_values(seq_length, self.embed_dim, n)
 
         self.add = keras.layers.Add()
 
     def get_config(self):
         config = super().get_config()
         return config
-
-    def get_positional_encoding_values(self, seq_length: int, embed_dim: int, n: int) -> np.array:
-
-        # PE(pos, 2i) = sin( pos/(10000**(2i/dim)) )
-        # PE(pos, 2i+1) = cos( pos/(10000**(2i/dim)) )
-        # i = i-th dimension of embedding vector
-
-        # i
-        dimensions = np.arange(embed_dim)
-        # masking odd, even i; 2i
-        even_mask = dimensions % 2 == 0
-        odd_mask = dimensions % 2 == 1
-        # shape (1, dim)
-        dimensions = dimensions[np.newaxis, :]
-
-        # pos
-        positions = np.arange(seq_length)
-        # shape (pos, 1)
-        positions = positions[:, np.newaxis]
-
-        dimensions = dimensions / embed_dim
-        rate = 1 / (n**(dimensions))
-        # shape (pos, dim)
-        rads = positions * rate
-
-        positional_encoding = np.sin(rads) * even_mask + np.cos(rads) * odd_mask
-
-        assert positional_encoding.shape == (seq_length, embed_dim)
-
-        return positional_encoding
 
     def call(self, x):
         # input shape: (batch, seq, emb)
