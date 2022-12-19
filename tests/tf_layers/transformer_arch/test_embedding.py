@@ -7,8 +7,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.layers import Embedding
 
 from utils.tf_layers.transformer_arch.embedding import FixedPositionalEncoding
 
@@ -32,49 +30,24 @@ def seq():
 
 
 @pytest.fixture
-def zero_seq():
-    zero_sequence = np.zeros(shape=(BATCH_SIZE, SEQ_LENGTH))
-    return zero_sequence
+def pos_layer():
+    pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
+    return pos_layer
 
 
-def test_embedding_layer_output_shape(seq):
-    # embedding layer take a batched tensor (b, seq)
-    # it should return an output in shoe (b, seq, em)
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    em_seq = em_layer(seq)
+def test_architecture(seq, pos_layer):
 
-    # it should have keras mask
-    # True for non-Zero value; False = zero
-    em_seq._keras_mask
+    # ensure sequence data is batched
+    assert seq.shape == (BATCH_SIZE, SEQ_LENGTH)
 
+    # pass it through embedding layer
+    embedding_layer = tf.keras.layers.Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM)
+    em_seq = embedding_layer(seq)
     assert get_tensor_shape(em_seq) == DATA_SHAPE
 
-
-def test_embedding_layer_masking(zero_seq):
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    em_seq = em_layer(zero_seq)
-
-    # Since all of values in the sequence are zero
-    # the masking values should be all False
-    assert not em_seq._keras_mask.numpy().all()
-
-
-def test_embedding_with_positional_encoding_output_shape(seq):
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
-
-    em_seq = em_layer(seq)
+    # add positional encoding via using my layer
     pos_em_seq = pos_layer(em_seq)
-
+    # data shape should not be changed
     assert get_tensor_shape(pos_em_seq) == DATA_SHAPE
-    assert get_tensor_shape(pos_em_seq) == get_tensor_shape(em_seq)
-
-
-def test_positional_encoding_value(zero_seq):
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
-
-    em_seq = em_layer(zero_seq)
-    pos_em_seq = pos_layer(em_seq)
-
-    assert (em_seq.numpy() != pos_em_seq.numpy()).any()
+    # data should be added with positional encoding
+    assert (pos_em_seq.numpy() != em_seq.numpy()).all()
