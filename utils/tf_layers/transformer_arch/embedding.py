@@ -86,9 +86,10 @@ class FixedPositionalEncoding(keras.layers.Layer):
         # TESTED
         # we can also use Add() layer by
         # repeat constant in the same shape of data
-        pos_encoding = tf.repeat(pos_encoding, batch_size, axis=0)
-        x = self.add([x, pos_encoding])
+        # pos_encoding = tf.repeat(pos_encoding, batch_size, axis=0)
+        # x = self.add([x, pos_encoding])
 
         # TESTED
-        # x = x + pos_encoding
+        # with + operator, no need to use tf.repeat
+        x = x + pos_encoding
         return x
