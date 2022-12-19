@@ -51,3 +51,15 @@ def test_architecture(seq, pos_layer):
     assert get_tensor_shape(pos_em_seq) == DATA_SHAPE
     # data should be added with positional encoding
     assert (pos_em_seq.numpy() != em_seq.numpy()).all()
+
+
+def test_the_positional_encoding_layer_takes_as_input_vectors_in_this_shape(seq, pos_layer):
+    # the input of positional encoding layer
+    # should be in shape (batch size, seq length, embedding dim)
+    # ie like the output of `Encoding` layer
+
+    embedding_layer = tf.keras.layers.Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM)
+    proper_input = embedding_layer(seq)
+    # process without error
+    pos_layer(proper_input)
+    pos_layer(np.zeros_like(proper_input.numpy()))
