@@ -81,7 +81,7 @@ class FixedPositionalEncoding(keras.layers.Layer):
         pos_encoding = pos_encoding[tf.newaxis, :seq_length, :]
 
         # scaling x, before adding positional encoding
-        # x *= tf.math.sqrt(tf.cast(self.embed_dim, tf.float32))
+        x = x * tf.math.sqrt(tf.cast(self.embed_dim, tf.float32))
 
         # TESTED
         # we can also use Add() layer by
