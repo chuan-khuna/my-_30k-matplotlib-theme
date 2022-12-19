@@ -71,5 +71,8 @@ class FixedPositionalEncoding(keras.layers.Layer):
         # scaling
         # x *= tf.math.sqrt(tf.cast(self.embed_dim, tf.float32))
 
+        # TODO:
+        # use Add() layer?
+
         x = x + pos_encoding
         return x
