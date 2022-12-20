@@ -11,17 +11,17 @@ class Encoder(keras.layers.Layer):
     def __init__(self,
                  *,
                  num_layers,
+                 num_heads,
                  vocab_size,
                  embedding_dim,
                  max_positional_seq_length=2048,
-                 num_heads,
                  dense_dim=128,
                  dropout_rate=0.1):
+        super().__init__()
         self.embedding_dim = embedding_dim
         self.num_layers = num_layers
 
-        self.pos_embedding = PositionalEmbedding(vocab_size,
-                                                 embedding_dim=vocab_size,
+        self.pos_embedding = PositionalEmbedding(vocab_size=vocab_size,
                                                  embedding_dim=embedding_dim,
                                                  positional_seq_length=max_positional_seq_length)
 
@@ -52,18 +52,17 @@ class Decoder(keras.layers.Layer):
     def __init__(self,
                  *,
                  num_layers,
+                 num_heads,
                  vocab_size,
                  embedding_dim,
                  max_positional_seq_length=2048,
-                 num_heads,
                  dense_dim=128,
                  dropout_rate=0.1):
         super().__init__()
 
         self.embedding_dim = embedding_dim
         self.num_layers = num_layers
-        self.pos_embedding = PositionalEmbedding(vocab_size,
-                                                 embedding_dim=vocab_size,
+        self.pos_embedding = PositionalEmbedding(vocab_size=vocab_size,
                                                  embedding_dim=embedding_dim,
                                                  positional_seq_length=max_positional_seq_length)
 
