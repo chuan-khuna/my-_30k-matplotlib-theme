@@ -10,7 +10,7 @@ class TransformerEncoder(keras.layers.Layer):
     def __init__(self,
                  embedding_dim: int,
                  num_heads: int,
-                 dense_dim: int = 32,
+                 dense_dim: int = 128,
                  dropout_rate: float = 0.1):
         super().__init__()
         self.self_attention = SelfAttentionBlock(num_heads=num_heads,
@@ -35,7 +35,7 @@ class TransformerDecoder(keras.layers.Layer):
     def __init__(self,
                  embedding_dim: int,
                  num_heads: int,
-                 dense_dim: int = 32,
+                 dense_dim: int = 128,
                  dropout_rate: float = 0.1):
 
         super().__init__()

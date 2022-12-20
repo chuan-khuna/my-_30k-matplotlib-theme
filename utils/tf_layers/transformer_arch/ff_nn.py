@@ -13,7 +13,7 @@ class FeedForward(keras.layers.Layer):
         keras (_type_): _description_
     """
 
-    def __init__(self, embedding_dim: int, dense_dim: int = 32, dropout_rate: float = 0.1):
+    def __init__(self, embedding_dim: int, dense_dim: int = 128, dropout_rate: float = 0.1):
         super().__init__()
         self.ff_nn = keras.models.Sequential([
             keras.layers.Dense(dense_dim),
