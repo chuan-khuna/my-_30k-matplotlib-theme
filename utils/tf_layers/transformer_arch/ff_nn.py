@@ -16,7 +16,8 @@ class FeedForward(keras.layers.Layer):
     def __init__(self, embedding_dim: int, dense_dim: int, dropout_rate: float = 0.1):
         super().__init__()
         self.ff_nn = keras.models.Sequential([
-            keras.layers.Dense(dense_dim, activation='gelu'),
+            keras.layers.Dense(dense_dim),
+            keras.layers.LeakyReLU(),
             keras.layers.Dense(embedding_dim),
             keras.layers.Dropout(dropout_rate)
         ])
