@@ -8,7 +8,7 @@ warnings.filterwarnings('ignore')
 
 import tensorflow as tf
 
-from utils.tf_layers.transformer_arch.embedding import FixedPositionalEncoding
+from utils.tf_layers.transformer_arch.embedding import FixedPositionalEncoding, PositionalEmbedding
 
 TEST_PATH = os.path.dirname(__file__)
 
@@ -63,3 +63,10 @@ def test_the_positional_encoding_layer_takes_as_input_vectors_in_this_shape(seq,
     # process without error
     pos_layer(proper_input)
     pos_layer(np.zeros_like(proper_input.numpy()))
+
+
+def test_positional_encoding_layer(seq):
+    pos_embedding_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
+
+    em_seq = pos_embedding_layer(seq)
+    assert get_tensor_shape(em_seq) == DATA_SHAPE

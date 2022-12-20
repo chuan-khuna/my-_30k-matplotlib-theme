@@ -114,7 +114,7 @@ class PositionalEmbedding(keras.layers.Layer):
 
         self.embedding = keras.layers.Embedding(input_dim=vocab_size,
                                                 output_dim=self.embed_dim,
-                                                mask_zeros=True)
+                                                mask_zero=True)
 
         self.positional_encoding = get_positional_encoding_values(positional_seq_length,
                                                                   self.embed_dim, n)
