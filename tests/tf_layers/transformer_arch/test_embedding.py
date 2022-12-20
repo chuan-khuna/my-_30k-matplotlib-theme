@@ -7,10 +7,8 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.layers import Embedding
 
-from utils.tf_layers.transformer_arch.embedding import FixedPositionalEncoding
+from utils.tf_layers.transformer_arch.embedding import FixedPositionalEncoding, PositionalEmbedding
 
 TEST_PATH = os.path.dirname(__file__)
 
@@ -32,67 +30,43 @@ def seq():
 
 
 @pytest.fixture
-def zero_seq():
-    zero_sequence = np.zeros(shape=(BATCH_SIZE, SEQ_LENGTH))
-    return zero_sequence
+def pos_layer():
+    pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
+    return pos_layer
 
 
-def test_embedding_layer_output_shape(seq):
-    # embedding layer take a batched tensor (b, seq)
-    # it should return an output in shoe (b, seq, em)
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    em_seq = em_layer(seq)
+def test_architecture(seq, pos_layer):
 
-    # it should have keras mask
-    # True for non-Zero value; False = zero
-    em_seq._keras_mask
+    # ensure sequence data is batched
+    assert seq.shape == (BATCH_SIZE, SEQ_LENGTH)
 
+    # pass it through embedding layer
+    embedding_layer = tf.keras.layers.Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM)
+    em_seq = embedding_layer(seq)
     assert get_tensor_shape(em_seq) == DATA_SHAPE
 
-
-def test_embedding_layer_masking(zero_seq):
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    em_seq = em_layer(zero_seq)
-
-    # Since all of values in the sequence are zero
-    # the masking values should be all False
-    assert not em_seq._keras_mask.numpy().all()
-
-
-def test_embedding_with_positional_encoding_output_shape(seq):
-    # x = Embedding(x)
-    # x = PosEnc(x)
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
-
-    # masking should be passed through positional encoding layer
-    # masking should be preserved
-    em_seq = em_layer(seq)
-    mask1 = em_seq._keras_mask
+    # add positional encoding via using my layer
     pos_em_seq = pos_layer(em_seq)
-    mask2 = pos_em_seq._keras_mask
-
-    assert (mask1.numpy() == mask2.numpy()).all()
+    # data shape should not be changed
     assert get_tensor_shape(pos_em_seq) == DATA_SHAPE
-    assert get_tensor_shape(pos_em_seq) == get_tensor_shape(em_seq)
+    # data should be added with positional encoding
+    assert (pos_em_seq.numpy() != em_seq.numpy()).all()
 
 
-def test_positional_encoding_value(zero_seq):
-    # x = Embedding(x)
-    # x = PosEnc(x)
-    em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-    pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
+def test_the_positional_encoding_layer_takes_as_input_vectors_in_this_shape(seq, pos_layer):
+    # the input of positional encoding layer
+    # should be in shape (batch size, seq length, embedding dim)
+    # ie like the output of `Encoding` layer
 
-    # masking should be passed through positional encoding layer
-    # masking should be preserved
-    em_seq = em_layer(zero_seq)
-    mask1 = em_seq._keras_mask
-    pos_em_seq = pos_layer(em_seq)
-    mask2 = pos_em_seq._keras_mask
+    embedding_layer = tf.keras.layers.Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM)
+    proper_input = embedding_layer(seq)
+    # process without error
+    pos_layer(proper_input)
+    pos_layer(np.zeros_like(proper_input.numpy()))
 
-    # positional encoding should be added to the embedding value
-    assert (em_seq.numpy() != pos_em_seq.numpy()).any()
-    # mask should be preserved
-    assert (mask1.numpy() == mask2.numpy()).all()
-    # mask should be all False
-    assert not em_seq._keras_mask.numpy().all()
+
+def test_positional_encoding_layer(seq):
+    pos_embedding_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
+
+    em_seq = pos_embedding_layer(seq)
+    assert get_tensor_shape(em_seq) == DATA_SHAPE

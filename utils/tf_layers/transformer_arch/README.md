@@ -10,8 +10,8 @@ references:
 
 ## Todo
 
-- Learn about **masking**, How to implement it in my code
-  - problems: this verion of code doesn't learn anything from training
+- [ ] Maybe Tensorflow tutorial is the best way to write "Transformer", Should I refactor my code to that way?
+- [ ] Add `batcher` -> a wrapper to run forward pass with `model(x)` (note: `x` need to be **batched data**)
 
 ## Notes about the output dimensions
 
@@ -43,6 +43,9 @@ To add "Positional Encoding" -- the `sin, cos` encoding in **Attention is All Yo
 
 ```py
 pos_encoding = FixedPositionalEncoding(MAX_SEQ_LENGTH, EMBEDDING_SHAPE)
+# the sequence length parameter in PositionalEncoding can be a large number say 2048
+# matching input-encoding dimension before adding
+
 # > batch_size, seq_length, embedding_dim
 
 # Embedding()
