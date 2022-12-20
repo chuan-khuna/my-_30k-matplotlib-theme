@@ -13,7 +13,7 @@ from tensorflow import keras
 import numpy as np
 
 
-def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int) -> np.array:
+def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 10000) -> np.array:
 
     # PE(pos, 2i) = sin( pos/(10000**(2i/dim)) )
     # PE(pos, 2i+1) = cos( pos/(10000**(2i/dim)) )
@@ -97,4 +97,42 @@ class FixedPositionalEncoding(keras.layers.Layer):
 
 class PositionalEmbedding(keras.layers.Layer):
     # Embedding with fixed positional encoding in one block
-    pass
+    def __init__(self,
+                 vocab_size: int,
+                 embedding_dim: int,
+                 positional_seq_length: int = 2048,
+                 n: int = 10000):
+        """_summary_
+
+        Args:
+            vocab_size (int): _description_
+            embedding_dim (int): _description_
+            n (int, optional): _description_. Defaults to 10000.
+        """
+        super().__init__()
+        self.embed_dim = embedding_dim
+
+        self.embedding = keras.layers.Embedding(input_dim=vocab_size,
+                                                output_dim=self.embed_dim,
+                                                mask_zeros=True)
+
+        self.positional_encoding = get_positional_encoding_values(positional_seq_length,
+                                                                  self.embed_dim, n)
+
+    # why?
+    def compute_mask(self, *args, **kwargs):
+        return self.embedding.compute_mask(*args, **kwargs)
+
+    def call(self, x):
+        batch_size = tf.shape(x)[0]
+        seq_length = tf.shape(x)[1]
+
+        x = self.embedding(x)
+        # scaling x, before adding positional encoding
+        x = x * tf.math.sqrt(tf.cast(self.embed_dim, tf.float32))
+
+        pos_encoding = self.positional_encoding
+        pos_encoding = pos_encoding[tf.newaxis, :seq_length, :]
+        x = x + pos_encoding
+
+        return x
