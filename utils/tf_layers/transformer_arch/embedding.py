@@ -41,7 +41,7 @@ def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 100
 
     assert positional_encoding.shape == (seq_length, embed_dim)
 
-    return positional_encoding
+    return tf.constant(positional_encoding, dtype=tf.float32)
 
 
 class FixedPositionalEncoding(keras.layers.Layer):
