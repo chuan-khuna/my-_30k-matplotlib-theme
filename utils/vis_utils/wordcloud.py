@@ -9,7 +9,7 @@ def generate_wordcloud(tokenised_texts, colormap: list = None) -> wordcloud.Word
     """Generate wordcloud object
 
     Args:
-        tokenised_texts (_type_): list of [list of tokens]
+        tokenised_texts (_type_): list of [list of tokens]-like, pd.Series
         colormap (list, optional): list of string hex. Defaults to None.
 
     Returns:
