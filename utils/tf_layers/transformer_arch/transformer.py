@@ -1,8 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras
 
-from attention import SelfAttentionBlock, CrossAttentionBlock, MaskedSelfAttentionBlock
-from ff_nn import FeedForward
+from .attention import SelfAttentionBlock, CrossAttentionBlock, MaskedSelfAttentionBlock
+from .ff_nn import FeedForward
 
 
 class TransformerEncoder(keras.layers.Layer):

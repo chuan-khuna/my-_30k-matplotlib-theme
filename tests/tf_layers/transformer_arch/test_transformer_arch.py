@@ -1,51 +1,96 @@
-# import numpy as np
-# import os
-# from unittest.mock import patch, MagicMock, Mock
-# import pytest
-# import warnings
+import numpy as np
+import os
+from unittest.mock import patch, MagicMock, Mock
+import pytest
+import warnings
 
-# warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore')
 
-# import tensorflow as tf
-# from tensorflow import keras
-# from tensorflow.keras.layers import Embedding
+import tensorflow as tf
+from tensorflow import keras
 
-# from utils.tf_layers.transformer_arch.embedding import FixedPositionalEncoding
-# from utils.tf_layers.transformer_arch.transformer import TransformerEncoder, TransformerDecoder
+from utils.tf_layers.transformer_arch.embedding import PositionalEmbedding
+from utils.tf_layers.transformer_arch.transformer import TransformerEncoder, TransformerDecoder
 
-# TEST_PATH = os.path.dirname(__file__)
+TEST_PATH = os.path.dirname(__file__)
 
-# SEQ_LENGTH = 128
-# EMBEDDING_DIM = 32
-# BATCH_SIZE = 4
-# MAX_TOKENS = 1024
-# DATA_SHAPE = (BATCH_SIZE, SEQ_LENGTH, EMBEDDING_DIM)
-# TFM_HEAD = 4
-
-
-# def get_tensor_shape(tensor):
-#     return tuple(tensor.shape)
+SEQ_LENGTH = 128
+EMBEDDING_DIM = 32
+BATCH_SIZE = 4
+MAX_TOKENS = 1024
+DATA_SHAPE = (BATCH_SIZE, SEQ_LENGTH, EMBEDDING_DIM)
+NUM_HEADS = 8
 
 
-# @pytest.fixture
-# def seq():
-#     sequence = np.random.randint(low=0, high=MAX_TOKENS, size=(BATCH_SIZE, SEQ_LENGTH))
-#     return sequence
+def get_tensor_shape(tensor):
+    return tuple(tensor.shape)
 
 
-# def test_whether_mask_pass_through_layers(seq):
-#     em_layer = Embedding(input_dim=MAX_TOKENS, output_dim=EMBEDDING_DIM, mask_zero=True)
-#     pos_layer = FixedPositionalEncoding(SEQ_LENGTH, EMBEDDING_DIM)
-#     tfm_e = TransformerEncoder(EMBEDDING_DIM, num_heads=TFM_HEAD)
-#     tfm_d = TransformerDecoder(EMBEDDING_DIM, num_heads=TFM_HEAD)
+@pytest.fixture
+def seq():
+    sequence = np.random.randint(low=0, high=MAX_TOKENS, size=(BATCH_SIZE, SEQ_LENGTH))
+    return sequence
 
-#     em_seq = em_layer(seq)
-#     pos_seq = pos_layer(em_seq)
-#     tfm_e_seq = tfm_e(pos_seq)
-#     tfm_d_seq = tfm_d(pos_seq, pos_seq)
 
-#     assert get_tensor_shape(tfm_e_seq) == get_tensor_shape(em_seq)
-#     assert get_tensor_shape(tfm_e_seq)[0] == BATCH_SIZE
-#     assert get_tensor_shape(tfm_e_seq)[1] == SEQ_LENGTH
-#     assert get_tensor_shape(tfm_e_seq)[2] == EMBEDDING_DIM
-#     assert get_tensor_shape(tfm_e_seq) == get_tensor_shape(tfm_d_seq)
+def test_transformer_encoder(seq):
+    pos_em_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
+
+    encoder_block = TransformerEncoder(embedding_dim=EMBEDDING_DIM,
+                                       num_heads=NUM_HEADS,
+                                       dense_dim=512,
+                                       dropout_rate=0.1)
+
+    em_seq = pos_em_layer(seq)
+    encoded_seq = encoder_block(em_seq)
+
+    assert get_tensor_shape(em_seq) == DATA_SHAPE
+    assert get_tensor_shape(encoded_seq) == DATA_SHAPE
+    # it should be able to access self attention's attention scores
+    encoder_block.attn_scores
+    assert get_tensor_shape(encoder_block.attn_scores) == (BATCH_SIZE, NUM_HEADS, SEQ_LENGTH,
+                                                           SEQ_LENGTH)
+
+
+def test_transformer_decoder(seq):
+    pos_em_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
+
+    decoder_block = TransformerDecoder(embedding_dim=EMBEDDING_DIM,
+                                       num_heads=NUM_HEADS,
+                                       dense_dim=512,
+                                       dropout_rate=0.1)
+
+    CONTEXT_LENGTH = SEQ_LENGTH // 2
+
+    x_seq = pos_em_layer(seq)
+    context_seq = pos_em_layer(seq[:, :CONTEXT_LENGTH])
+
+    # x, context
+    decoded_seq = decoder_block(x_seq, context_seq)
+
+    assert get_tensor_shape(x_seq) == DATA_SHAPE
+    assert get_tensor_shape(decoded_seq) == DATA_SHAPE
+    # it should be able to access self attention's attention scores
+    decoder_block.attn_scores
+    assert get_tensor_shape(decoder_block.attn_scores) == (BATCH_SIZE, NUM_HEADS, SEQ_LENGTH,
+                                                           CONTEXT_LENGTH)
+
+
+def test_encoder_decoder_arch(seq):
+
+    pos_em_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
+    encoder_block = TransformerEncoder(embedding_dim=EMBEDDING_DIM,
+                                       num_heads=NUM_HEADS,
+                                       dense_dim=512,
+                                       dropout_rate=0.1)
+    decoder_block = TransformerDecoder(embedding_dim=EMBEDDING_DIM,
+                                       num_heads=NUM_HEADS,
+                                       dense_dim=512,
+                                       dropout_rate=0.1)
+
+    CONTEXT_LENGTH = SEQ_LENGTH // 2
+
+    x = pos_em_layer(seq)
+    context = pos_em_layer(seq[:, :CONTEXT_LENGTH])
+
+    context = encoder_block(context)
+    x = decoder_block(x, context)
