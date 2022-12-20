@@ -119,6 +119,10 @@ class PositionalEmbedding(keras.layers.Layer):
         self.positional_encoding = get_positional_encoding_values(positional_seq_length,
                                                                   self.embed_dim, n)
 
+    def get_config(self):
+        config = super().get_config()
+        return config
+
     # why?
     def compute_mask(self, *args, **kwargs):
         return self.embedding.compute_mask(*args, **kwargs)
