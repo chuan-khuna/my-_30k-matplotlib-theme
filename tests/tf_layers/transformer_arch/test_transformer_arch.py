@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 from utils.tf_layers.transformer_arch.embedding import PositionalEmbedding
-from utils.tf_layers.transformer_arch.transformer import TransformerEncoder, TransformerDecoder
+from utils.tf_layers.transformer_arch.transformer import TransformerEncoderBlock, TransformerDecoderBlock
 
 TEST_PATH = os.path.dirname(__file__)
 
@@ -35,10 +35,10 @@ def seq():
 def test_transformer_encoder(seq):
     pos_em_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
 
-    encoder_block = TransformerEncoder(embedding_dim=EMBEDDING_DIM,
-                                       num_heads=NUM_HEADS,
-                                       dense_dim=512,
-                                       dropout_rate=0.1)
+    encoder_block = TransformerEncoderBlock(embedding_dim=EMBEDDING_DIM,
+                                            num_heads=NUM_HEADS,
+                                            dense_dim=512,
+                                            dropout_rate=0.1)
 
     em_seq = pos_em_layer(seq)
     encoded_seq = encoder_block(em_seq)
@@ -54,10 +54,10 @@ def test_transformer_encoder(seq):
 def test_transformer_decoder(seq):
     pos_em_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
 
-    decoder_block = TransformerDecoder(embedding_dim=EMBEDDING_DIM,
-                                       num_heads=NUM_HEADS,
-                                       dense_dim=512,
-                                       dropout_rate=0.1)
+    decoder_block = TransformerDecoderBlock(embedding_dim=EMBEDDING_DIM,
+                                            num_heads=NUM_HEADS,
+                                            dense_dim=512,
+                                            dropout_rate=0.1)
 
     CONTEXT_LENGTH = SEQ_LENGTH // 2
 
@@ -78,14 +78,14 @@ def test_transformer_decoder(seq):
 def test_encoder_decoder_arch(seq):
 
     pos_em_layer = PositionalEmbedding(vocab_size=MAX_TOKENS, embedding_dim=EMBEDDING_DIM)
-    encoder_block = TransformerEncoder(embedding_dim=EMBEDDING_DIM,
-                                       num_heads=NUM_HEADS,
-                                       dense_dim=512,
-                                       dropout_rate=0.1)
-    decoder_block = TransformerDecoder(embedding_dim=EMBEDDING_DIM,
-                                       num_heads=NUM_HEADS,
-                                       dense_dim=512,
-                                       dropout_rate=0.1)
+    encoder_block = TransformerEncoderBlock(embedding_dim=EMBEDDING_DIM,
+                                            num_heads=NUM_HEADS,
+                                            dense_dim=512,
+                                            dropout_rate=0.1)
+    decoder_block = TransformerDecoderBlock(embedding_dim=EMBEDDING_DIM,
+                                            num_heads=NUM_HEADS,
+                                            dense_dim=512,
+                                            dropout_rate=0.1)
 
     CONTEXT_LENGTH = SEQ_LENGTH // 2
 

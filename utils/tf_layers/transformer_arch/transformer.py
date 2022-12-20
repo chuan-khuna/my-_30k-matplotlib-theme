@@ -5,7 +5,7 @@ from .attention import SelfAttentionBlock, CrossAttentionBlock, MaskedSelfAttent
 from .ff_nn import FeedForward
 
 
-class TransformerEncoder(keras.layers.Layer):
+class TransformerEncoderBlock(keras.layers.Layer):
 
     def __init__(self,
                  embedding_dim: int,
@@ -30,7 +30,7 @@ class TransformerEncoder(keras.layers.Layer):
         return x
 
 
-class TransformerDecoder(keras.layers.Layer):
+class TransformerDecoderBlock(keras.layers.Layer):
 
     def __init__(self,
                  embedding_dim: int,
