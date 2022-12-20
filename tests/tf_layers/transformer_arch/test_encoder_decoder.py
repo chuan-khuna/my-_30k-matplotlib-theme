@@ -41,3 +41,20 @@ def test_encoder(seq):
     encoded_seq = enc(seq)
 
     assert get_tensor_shape(encoded_seq) == DATA_SHAPE
+
+
+def test_encoder_decoder(seq):
+
+    enc = Encoder(num_layers=4,
+                  num_heads=NUM_HEADS,
+                  vocab_size=MAX_TOKENS,
+                  embedding_dim=EMBEDDING_DIM)
+    context = enc(seq)
+
+    dec = Decoder(num_layers=4,
+                  num_heads=NUM_HEADS,
+                  vocab_size=MAX_TOKENS,
+                  embedding_dim=EMBEDDING_DIM)
+    decoded_seq = dec(seq, context)
+
+    assert get_tensor_shape(decoded_seq) == DATA_SHAPE
