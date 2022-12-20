@@ -93,3 +93,8 @@ class FixedPositionalEncoding(keras.layers.Layer):
         # with + operator, no need to use tf.repeat
         x = x + pos_encoding
         return x
+
+
+class PositionalEmbedding(keras.layers.Layer):
+    # Embedding with fixed positional encoding in one block
+    pass
