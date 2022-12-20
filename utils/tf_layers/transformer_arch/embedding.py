@@ -41,6 +41,9 @@ def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 100
 
     assert positional_encoding.shape == (seq_length, embed_dim)
 
+    # should cast data type to tensorflow's
+    # otherwise it will error when run model.fit()
+    # TODO: how to make this code compatible to mixed precision policy
     return tf.constant(positional_encoding, dtype=tf.float32)
 
 

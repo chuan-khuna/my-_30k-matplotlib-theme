@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 from .attention import *
-from .transformer import TransformerDecoder, TransformerEncoder
+from .transformer import TransformerDecoderBlock, TransformerEncoderBlock
 from .embedding import PositionalEmbedding
 
 
@@ -26,10 +26,10 @@ class Encoder(keras.layers.Layer):
                                                  positional_seq_length=max_positional_seq_length)
 
         self.encoders = [
-            TransformerEncoder(embedding_dim=embedding_dim,
-                               num_heads=num_heads,
-                               dense_dim=dense_dim,
-                               dropout_rate=dropout_rate) for _ in range(self.num_layers)
+            TransformerEncoderBlock(embedding_dim=embedding_dim,
+                                    num_heads=num_heads,
+                                    dense_dim=dense_dim,
+                                    dropout_rate=dropout_rate) for _ in range(self.num_layers)
         ]
 
         self.pos_enc_dropout = keras.layers.Dropout(dropout_rate)
@@ -67,10 +67,10 @@ class Decoder(keras.layers.Layer):
                                                  positional_seq_length=max_positional_seq_length)
 
         self.decoders = [
-            TransformerDecoder(embedding_dim=embedding_dim,
-                               num_heads=num_heads,
-                               dense_dim=dense_dim,
-                               dropout_rate=dropout_rate) for _ in range(self.num_layers)
+            TransformerDecoderBlock(embedding_dim=embedding_dim,
+                                    num_heads=num_heads,
+                                    dense_dim=dense_dim,
+                                    dropout_rate=dropout_rate) for _ in range(self.num_layers)
         ]
 
         self.pos_dec_dropout = keras.layers.Dropout(dropout_rate)

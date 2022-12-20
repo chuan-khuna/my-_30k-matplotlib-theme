@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 from utils.tf_layers.transformer_arch.embedding import PositionalEmbedding
-from utils.tf_layers.transformer_arch.transformer import TransformerEncoder, TransformerDecoder
+from utils.tf_layers.transformer_arch.transformer import TransformerEncoderBlock, TransformerDecoderBlock
 from utils.tf_layers.transformer_arch.model import Encoder, Decoder
 
 TEST_PATH = os.path.dirname(__file__)
