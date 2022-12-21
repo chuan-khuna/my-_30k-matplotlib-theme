@@ -13,11 +13,14 @@ class TransformerEncoderBlock(keras.layers.Layer):
                  dense_dim: int = 128,
                  dropout_rate: float = 0.1):
         super().__init__()
+
         self.self_attention = SelfAttentionBlock(num_heads=num_heads,
                                                  key_dim=embedding_dim,
                                                  dropout=dropout_rate)
 
         self.ff_nn = FeedForward(embedding_dim=embedding_dim, dense_dim=dense_dim)
+
+        self.attn_scores = None
 
     def get_config(self):
         config = super().get_config()
@@ -37,7 +40,6 @@ class TransformerDecoderBlock(keras.layers.Layer):
                  num_heads: int,
                  dense_dim: int = 128,
                  dropout_rate: float = 0.1):
-
         super().__init__()
 
         self.masked_attention = MaskedSelfAttentionBlock(num_heads=num_heads,
@@ -49,6 +51,8 @@ class TransformerDecoderBlock(keras.layers.Layer):
                                                    dropout=dropout_rate)
 
         self.ff_nn = FeedForward(embedding_dim=embedding_dim, dense_dim=dense_dim)
+
+        self.attn_scores = None
 
     def get_config(self):
         config = super().get_config()
