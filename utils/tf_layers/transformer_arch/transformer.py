@@ -43,7 +43,6 @@ class TransformerEncoderBlock(keras.layers.Layer):
 
 
 class TransformerDecoderBlock(keras.layers.Layer):
-
     """A Decoder Layer/Block in Transformer architecture
 
     It takes `x, context` data in shape (batch, seq, embedding) as input
@@ -54,7 +53,6 @@ class TransformerDecoderBlock(keras.layers.Layer):
     Args:
         keras (_type_): _description_
     """
-
 
     def __init__(self,
                  embedding_dim: int,

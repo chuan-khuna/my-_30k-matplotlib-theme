@@ -10,8 +10,10 @@ references:
 
 ## Todo
 
-- [ ] Maybe Tensorflow tutorial is the best way to write "Transformer", Should I refactor my code to that way?
-- [ ] Add `batcher` -> a wrapper to run forward pass with `model(x)` (note: `x` need to be **batched data**)
+- [x] Maybe Tensorflow tutorial is the best way to write "Transformer", Should I refactor my code to that way?
+- [ ] Solve these warning
+  - [ ] `WARNING:absl:Found untraced functions such as ...`
+  - [ ] `WARNING:tensorflow:Skipping full serialization of Keras layer`
 
 ## Notes about the output dimensions
 
