@@ -91,7 +91,9 @@ class FixedPositionalEncoding(keras.layers.Layer):
         return config
 
     def assert_input_shape(self, x):
-        input_shape = tuple(tf.shape(x).numpy())
+        # use tf.shape to prevent error whilst running model.fit
+        # something about eager mode?
+        input_shape = tf.shape(x)
         assert len(
             input_shape
         ) == 3, f"Input shape should be (batch_size, seq_length, embedding_dim) but found {input_shape}"
@@ -165,7 +167,7 @@ class PositionalEmbedding(keras.layers.Layer):
         return self.embedding.compute_mask(*args, **kwargs)
 
     def assert_input_shape(self, x):
-        input_shape = tuple(tf.shape(x).numpy())
+        input_shape = tf.shape(x)
         assert len(input_shape
                   ) == 2, f"Input shape should be (batch_size, seq_length) but found {input_shape}"
 
