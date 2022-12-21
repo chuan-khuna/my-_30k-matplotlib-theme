@@ -13,6 +13,7 @@ from tensorflow import keras
 import numpy as np
 
 
+@tf.function
 def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 10000) -> np.array:
     """Generate positional encoding vectors (ref: Attention is all you need)
     in shape (seq_length, embed_dim)
@@ -80,9 +81,8 @@ class FixedPositionalEncoding(keras.layers.Layer):
         super().__init__()
 
         self.embed_dim = embed_dim
-        self.positional_encoding = tf.constant(get_positional_encoding_values(
-            seq_length, self.embed_dim, n),
-                                               dtype=tf.float32)
+        pos_enc_np = get_positional_encoding_values(seq_length, self.embed_dim, n).numpy()
+        self.positional_encoding = tf.constant(pos_enc_np, dtype=tf.float32)
 
         self.add = keras.layers.Add()
 
@@ -152,9 +152,9 @@ class PositionalEmbedding(keras.layers.Layer):
                                                 output_dim=self.embed_dim,
                                                 mask_zero=True)
 
-        self.positional_encoding = tf.constant(get_positional_encoding_values(
-            positional_seq_length, self.embed_dim, n),
-                                               dtype=tf.float32)
+        pos_enc_np = get_positional_encoding_values(positional_seq_length, self.embed_dim,
+                                                    n).numpy()
+        self.positional_encoding = tf.constant(pos_enc_np, dtype=tf.float32)
 
     def get_config(self):
         config = super().get_config()
