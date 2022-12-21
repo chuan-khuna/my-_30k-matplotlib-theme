@@ -14,6 +14,17 @@ import numpy as np
 
 
 def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 10000) -> np.array:
+    """Generate positional encoding vectors (ref: Attention is all you need)
+    is shape (seq_length, embed_dim)
+
+    Args:
+        seq_length (int): _description_
+        embed_dim (int): _description_
+        n (int, optional): _description_. Defaults to 10000.
+
+    Returns:
+        np.array: (seq_length, embed_dim) vector, should be cast to `tf.constant` type
+    """
 
     # PE(pos, 2i) = sin( pos/(10000**(2i/dim)) )
     # PE(pos, 2i+1) = cos( pos/(10000**(2i/dim)) )
@@ -44,11 +55,13 @@ def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 100
     # should cast data type to tensorflow's
     # otherwise it will error when run model.fit()
     # TODO: how to make this code compatible to mixed precision policy
-    return tf.constant(positional_encoding, dtype=tf.float32)
+    return positional_encoding
 
 
 class FixedPositionalEncoding(keras.layers.Layer):
     """Add "Positional Encodings" to embedding vectors
+
+    This layer take as input data in shape (batch, seq_length, embedding_dim)
 
     How to use:
 
@@ -65,7 +78,9 @@ class FixedPositionalEncoding(keras.layers.Layer):
         super().__init__()
 
         self.embed_dim = embed_dim
-        self.positional_encoding = get_positional_encoding_values(seq_length, self.embed_dim, n)
+        self.positional_encoding = tf.constant(get_positional_encoding_values(
+            seq_length, self.embed_dim, n),
+                                               dtype=tf.float32)
 
         self.add = keras.layers.Add()
 
@@ -107,7 +122,15 @@ class FixedPositionalEncoding(keras.layers.Layer):
 
 
 class PositionalEmbedding(keras.layers.Layer):
-    # Embedding with fixed positional encoding in one block
+    """Embedding layer with Positional Encoding in bundled in one block
+
+    This layer takes as input data in shape (batch_size, seq_length)
+    eg, [[0, 1, 2, 3], [4, 5, 6, 7]]
+
+    Args:
+        keras (_type_): _description_
+    """
+
     def __init__(self,
                  vocab_size: int,
                  embedding_dim: int,
@@ -127,8 +150,9 @@ class PositionalEmbedding(keras.layers.Layer):
                                                 output_dim=self.embed_dim,
                                                 mask_zero=True)
 
-        self.positional_encoding = get_positional_encoding_values(positional_seq_length,
-                                                                  self.embed_dim, n)
+        self.positional_encoding = tf.constant(get_positional_encoding_values(
+            positional_seq_length, self.embed_dim, n),
+                                               dtype=tf.float32)
 
     def get_config(self):
         config = super().get_config()
