@@ -15,7 +15,9 @@ import numpy as np
 
 def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 10000) -> np.array:
     """Generate positional encoding vectors (ref: Attention is all you need)
-    is shape (seq_length, embed_dim)
+    in shape (seq_length, embed_dim)
+
+    If used in tensorflow, it should be cast to tensorflow's `Tensor`, `tf.constant`
 
     Args:
         seq_length (int): _description_
@@ -61,7 +63,7 @@ def get_positional_encoding_values(seq_length: int, embed_dim: int, n: int = 100
 class FixedPositionalEncoding(keras.layers.Layer):
     """Add "Positional Encodings" to embedding vectors
 
-    This layer take as input data in shape (batch, seq_length, embedding_dim)
+    This layer takes as input data in shape (batch, seq_length, embedding_dim)
 
     How to use:
 
