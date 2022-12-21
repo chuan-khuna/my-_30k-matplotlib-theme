@@ -97,7 +97,7 @@ class FixedPositionalEncoding(keras.layers.Layer):
         assert input_shape.shape == 3, f"Input shape should be (batch_size, seq_length, embedding_dim) but found {input_shape}"
 
     def call(self, x):
-        self.assert_input_shape(x)
+        # self.assert_input_shape(x)
 
         # input shape: (batch, seq, emb)
         batch_size = tf.shape(x)[0]
@@ -169,7 +169,7 @@ class PositionalEmbedding(keras.layers.Layer):
         assert input_shape.shape == 2, f"Input shape should be (batch_size, seq_length) but found {input_shape}"
 
     def call(self, x):
-        self.assert_input_shape(x)
+        # self.assert_input_shape(x)
 
         batch_size = tf.shape(x)[0]
         seq_length = tf.shape(x)[1]
