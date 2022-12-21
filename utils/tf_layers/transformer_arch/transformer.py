@@ -6,6 +6,15 @@ from .ff_nn import FeedForward
 
 
 class TransformerEncoderBlock(keras.layers.Layer):
+    """An Encoder Layer/Block in Transformer architecture
+
+    It takes data in shape (batch, seq, embedding) as input
+
+    This can be stacked `N` times to be a part of Encoder-side
+
+    Args:
+        keras (_type_): _description_
+    """
 
     def __init__(self,
                  embedding_dim: int,
@@ -34,6 +43,18 @@ class TransformerEncoderBlock(keras.layers.Layer):
 
 
 class TransformerDecoderBlock(keras.layers.Layer):
+
+    """A Decoder Layer/Block in Transformer architecture
+
+    It takes `x, context` data in shape (batch, seq, embedding) as input
+    where `context` are from the Encoder-side
+
+    This can be stacked `N` times to be a part of Decoder-side
+
+    Args:
+        keras (_type_): _description_
+    """
+
 
     def __init__(self,
                  embedding_dim: int,
