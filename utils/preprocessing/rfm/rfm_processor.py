@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-class RFMProcesssor:
+class RFMProcessor:
 
     def __init__(self,
                  customer: str,
