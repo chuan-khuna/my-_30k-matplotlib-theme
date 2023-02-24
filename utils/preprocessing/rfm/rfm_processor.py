@@ -96,12 +96,18 @@ class RFMProcessor:
         """
 
         # if any errors occur set default to the best score
+        # it depends on whether `labels` is reversed or not
+        # ie lower value = higher score
         try:
             n_bins = len(pd.qcut(x, self.n_groups, duplicates='drop').cat.categories)
-            return pd.qcut(x, self.n_groups, labels[-n_bins:], duplicates='drop')
-            # return pd.qcut(x, self.n_groups, labels[:n_bins], duplicates='drop')
+
+            if labels[0] > labels[1]:
+                return pd.qcut(x, self.n_groups, labels[:n_bins], duplicates='drop')
+            else:
+                return pd.qcut(x, self.n_groups, labels[-n_bins:], duplicates='drop')
+
         except Exception as e:
-            return pd.Series(np.ones_like(x) * self.n_groups)
+            return pd.Series(np.ones_like(x) * self.n_groups).astype(int)
 
     def process_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """Process input dataframe, eg POS history
