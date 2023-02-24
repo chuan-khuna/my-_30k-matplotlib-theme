@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 
-
 class RFMProcessor:
 
     def __init__(self,
@@ -96,17 +95,25 @@ class RFMProcessor:
         """
 
         # if any errors occur set default to the best score
-        # it depends on whether `labels` is reversed or not
-        # ie lower value = higher score
+
         try:
             n_bins = len(pd.qcut(x, self.n_groups, duplicates='drop').cat.categories)
 
-            if labels[0] > labels[1]:
-                return pd.qcut(x, self.n_groups, labels[:n_bins], duplicates='drop')
-            else:
-                return pd.qcut(x, self.n_groups, labels[-n_bins:], duplicates='drop')
+            # whilst all numbers in a list are the same, eg [1, 1, 1]
+            if n_bins == 0:
+                raise ValueError(f"The number of bins should > 0, but got {n_bins}")
 
-        except Exception as e:
+            # it depends on whether `labels` is reversed or not
+            # ie lower value = higher score
+            if labels[0] > labels[1]:
+                scores = pd.qcut(x, self.n_groups, labels[:n_bins], duplicates='drop')
+            else:
+                scores = pd.qcut(x, self.n_groups, labels[-n_bins:], duplicates='drop')
+
+            return scores
+
+        except ValueError as error:
+            print(error)
             return pd.Series(np.ones_like(x) * self.n_groups).astype(int)
 
     def process_value(self, df: pd.DataFrame) -> pd.DataFrame:
