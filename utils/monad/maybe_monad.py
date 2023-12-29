@@ -6,7 +6,6 @@
 
 from typing import TypeVar, Callable, Generic
 
-
 T = TypeVar("T")  # any type T
 S = TypeVar("S")  # any type S
 
@@ -24,6 +23,17 @@ class Maybe(Generic[T]):
         Just(1) | (lambda x: Just(x + 1)) | (lambda x: Just(x + 1))
         ```
 
+        """
+        return self.bind(func)
+
+    def __rshift__(self, func):
+        """
+        use `>>` as a shorthand for `bind`
+
+        example:
+        ```python
+        Just(1) >> (lambda x: Just(x + 1)) >> (lambda x: Just(x + 1))
+        ```
         """
         return self.bind(func)
 
@@ -54,6 +64,9 @@ class Just(Maybe):
     def is_nothing(self):
         return False
 
+    def is_just(self):
+        return True
+
     def bind(self, func: Callable[[T], Maybe[S]]) -> Maybe[S]:
         return func(self.value)
 
@@ -70,6 +83,9 @@ class Nothing(Maybe):
 
     def is_nothing(self):
         return True
+
+    def is_just(self):
+        return False
 
     def bind(self, func: Callable[[T], Maybe[S]]) -> 'Nothing[str]':
         """When the input of `bind` is `Nothing`
