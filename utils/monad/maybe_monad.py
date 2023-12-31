@@ -97,7 +97,8 @@ class Nothing(Maybe):
         Returns:
             Nothing[str]: _description_
         """
-        return Nothing(self.error)
+        # just simply return self, or Nothing(self.error)
+        return self
 
     def __str__(self):
         if self.error is None:
