@@ -40,6 +40,9 @@ class Maybe(Generic[T]):
     def is_nothing(self):
         raise NotImplementedError
 
+    def is_just(self):
+        raise NotImplementedError
+
     def bind(self, func):
         """
         `bind` equivalent to >>= (pronounced bind) in Haskell
