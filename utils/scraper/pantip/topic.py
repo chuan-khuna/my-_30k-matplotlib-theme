@@ -24,7 +24,7 @@ def retrieve_topic_page(
     try:
         response = requests.get(topic_url, headers=headers, timeout=TIMEOUT_SECONDS)
     except Exception as e:
-        return Left(f"Error: {e}")
+        return Left(f"{e.__class__.__name__}: {e}")
 
     if response.status_code != 200:
         return Left(f"Response code is not 200 (got {response.status_code})")
@@ -46,4 +46,4 @@ def extract_topic_detail(soup: BeautifulSoup) -> str:
         topic_detail = soup.find(attrs={'class': "display-post-story"}).text
         return Right(topic_detail)
     except Exception as e:
-        return Left(f"Error: {e}")
+        return Left(f"{e.__class__.__name__}: {e}")
