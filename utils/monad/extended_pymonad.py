@@ -22,10 +22,11 @@ class Either(pyEither, Generic[M, T]):
         """Use `|` as a shorthand for `bind`"""
         return self.bind(func)
 
-    def get_error(self) -> str | None:
+    @property
+    def error(self) -> str | None:
+        """when the instance is a Left, can use `l.error` to get the error message"""
         if self.is_left():
             return self.monoid[0]
-
         return None
 
 
