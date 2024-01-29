@@ -13,7 +13,7 @@ from .utils import get_random_user_agent
 MaybeResponse = TypeVar("Maybe[requests.Response]")
 MaybeSoup = TypeVar("Maybe[BeautifulSoup]")
 
-def retrieve_topic_page(
+def retrieve_topic(
     topic_id: int | str, auth_token: str = AUTH_TOKEN, agent: str = get_random_user_agent()
 ) -> MaybeResponse:
     topic_url = topic_base_url.strip("/")  # remove trailing slash
