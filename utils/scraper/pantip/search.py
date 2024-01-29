@@ -15,6 +15,7 @@ from .utils import get_random_user_agent, convert_response_to_json, extract_json
 MaybeResponse = TypeVar("Maybe[requests.Response]")
 MaybeInt = TypeVar("Maybe[int]")
 MaybeJSON = TypeVar("Maybe[dict | list[dict]]")
+MaybeListIds = TypeVar("Maybe[list[str]]")
 
 
 def retrieve_topics_list(
@@ -23,6 +24,7 @@ def retrieve_topics_list(
     page: int = 1,
     auth_token: str = AUTH_TOKEN,
     agent: str = get_random_user_agent(),
+    sort_by_time: bool = False,
 ) -> MaybeResponse:
     """_summary_
 
@@ -32,13 +34,14 @@ def retrieve_topics_list(
         page (int, optional): pagination of the API (defualt to 10 topics per page). Defaults to 1.
         auth_token (str, optional): _description_. Defaults to AUTH_TOKEN.
         agent (str, optional): string or a function that returns string to randomly pick the agent. Defaults to get_random_user_agent().
+        sort_by_time (bool, optional): whether to sort the result by time or not. Defaults to False.
 
     Returns:
         MaybeResponse
     """
 
     headers = {'ptauthorize': auth_token, 'User-Agent': agent}
-    request_json = {"keyword": keyword, "page": page, 'rooms': rooms, 'timebias': False}
+    request_json = {"keyword": keyword, "page": page, 'rooms': rooms, 'timebias': sort_by_time}
 
     try:
         response = requests.post(
@@ -67,7 +70,7 @@ def retrieve_topics_list(
 
 def extract_number_of_topics(response: dict) -> MaybeInt:
     if "total" not in response.keys():
-        return Left("`total` not in response")
+        return Left("key `total` not in response")
 
     re_pattern = r'พบ\s(\d+)\sกระทู้'
     result = re.findall(re_pattern, response['total'])
@@ -81,3 +84,13 @@ def extract_number_of_topics(response: dict) -> MaybeInt:
 
 def extract_search_data(response: dict) -> MaybeJSON:
     return extract_json_key(response, 'data')
+
+
+def extract_topic_ids(topics: list[dict]) -> MaybeListIds:
+    """return list of topic ids from list of topics"""
+    ids = []
+    for topic in topics:
+        id = extract_json_key(topic, 'id')
+        if id.is_right():
+            ids.append(id.value)
+    return Right(ids)
