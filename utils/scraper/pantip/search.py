@@ -45,7 +45,7 @@ def retrieve_topics_list(
             search_api, headers=headers, json=request_json, timeout=TIMEOUT_SECONDS
         )
     except Exception as e:
-        return Left(f"Error: {e}")
+        return Left(f"{e.__class__.__name__}: {e}")
 
     # extract json from response
     # for checking if the response is success or not

@@ -30,7 +30,7 @@ def retrieve_comments_list(
             comment_api, params=params, headers=headers, timeout=TIMEOUT_SECONDS
         )
     except Exception as e:
-        return Left(f"Error: {e}")
+        return Left(f"{e.__class__.__name__}: {e}")
 
     if response.status_code != 200:
         return Left(f"Response code is not 200 (got {response.status_code})")
