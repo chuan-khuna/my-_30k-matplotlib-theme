@@ -1,10 +1,10 @@
 from .text_cleaner import TextCleaner
 import re
 import html
+from bs4 import BeautifulSoup
 
 
 class PantipCleaner(TextCleaner):
-
     def __init__(self, remove_punctuations: bool = True):
         TextCleaner.__init__(self, remove_punctuations=remove_punctuations)
 
@@ -29,11 +29,11 @@ class PantipCleaner(TextCleaner):
         return html.unescape(text)
 
     def _remove_html_tags(self, text: str) -> str:
-        pattern = re.compile(r"<.*?>")
-        return re.sub(pattern, "", text)
+        soup = BeautifulSoup(text, "html.parser")
+        text = soup.get_text()  # remove html tags
+        return text
 
     def clean(self, text: str) -> str:
-
         # clean pantip component
         text = self._replace_spoil_component(text)
         text = self._replace_edit_text(text)

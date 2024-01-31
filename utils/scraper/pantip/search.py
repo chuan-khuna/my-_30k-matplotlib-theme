@@ -72,8 +72,13 @@ def extract_number_of_topics(response: dict) -> MaybeInt:
     if "total" not in response.keys():
         return Left("key `total` not in response")
 
-    re_pattern = r'พบ\s(\d+)\sกระทู้'
+    re_pattern = r'พบ\s([\d,]+)\sกระทู้'
     result = re.findall(re_pattern, response['total'])
+
+    re_pattern_many = r'พบมากกว่า\s([\d,]+)\sกระทู้'
+    result_many = re.findall(re_pattern_many, response['total'])
+
+    result = result + result_many
 
     if len(result) == 0:
         return Left("Regex pattern cannot find number of topics")
