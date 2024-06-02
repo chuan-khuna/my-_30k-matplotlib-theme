@@ -13,7 +13,7 @@ vis_colors = {
     'red': '#CE2F42',
     'blue': '#258DBB',
     'green': '#92BC57',
-    'lightblue': '#70E2EC',
+    'lightblue': '#7fd2eb',
     'burgundy': '#9e2f50',
     'orange': '#F99F2F',
     'pink': '#EA5B8B',
