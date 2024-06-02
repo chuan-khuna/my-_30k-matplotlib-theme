@@ -16,5 +16,5 @@ text_colors = {
     "grey1": "#aeb7bc",
     "grey2": "#c3cace",
     "grey3": "#d9dde0",
-    "bg_cream": "#FAF7F4",
+    "bg": "#FAF7F4",
 }
