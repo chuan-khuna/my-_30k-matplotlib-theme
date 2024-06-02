@@ -35,7 +35,7 @@
 
 
 # Figure
-figure.figsize: 12.5, 5.0
+figure.figsize: 10.5, 5.0
 figure.dpi: 300.0
 figure.facecolor: FAF7F4
 axes.facecolor: FAF7F4
