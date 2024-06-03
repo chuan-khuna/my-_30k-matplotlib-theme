@@ -2,10 +2,10 @@
 # 16:9 6.4, 3.6 with some offset for title
 figure.figsize: 7.0, 3.5
 figure.dpi: 300.0
-figure.facecolor: DEEAED
-axes.facecolor: DEEAED
+figure.facecolor: F1F0EA
+axes.facecolor: F1F0EA
 savefig.dpi: 300.0
-savefig.facecolor: DEEAED
+savefig.facecolor: F1F0EA
 savefig.bbox: tight
 savefig.pad_inches: 0.1
 
