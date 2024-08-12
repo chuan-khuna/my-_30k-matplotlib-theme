@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
+from typing import Callable
 
 
 def select_labels(labels: list, num: int, label_type: str) -> list:
@@ -10,53 +11,6 @@ def select_labels(labels: list, num: int, label_type: str) -> list:
         return labels[:num]
     else:
         return labels[-num:]
-
-
-# def safe_qcut(
-#     data: pd.Series | np.ndarray | list, q: int, labels: list, label_type: str = 'asc'
-# ) -> tuple[pd.Series, dict]:
-
-#     assert label_type in ['asc', 'desc'], "`label_type` must be either 'asc' or 'desc'"
-#     assert (
-#         len(labels) >= q
-#     ), "The number of labels must be greater than or equal to the number of bins"
-
-#     if label_type == 'asc':
-#         assert labels == sorted(
-#             labels
-#         ), f"Labels must be in ascending order: {labels =}, {label_type =}"
-#     else:
-#         assert labels == sorted(
-#             labels, reverse=True
-#         ), f"Labels must be in descending order: {labels =}, {label_type =}"
-
-#     data_series = pd.Series(data)
-
-#     # get the actual number of bins
-#     num_bins = len(pd.qcut(data_series, q, duplicates='drop').cat.categories)
-
-#     # while all elements are the same
-#     if num_bins == 0:
-#         raise ValueError(
-#             f"The number of bins is {num_bins} because num unique values = {data_series.nunique()}"
-#         )
-
-#     # when number of bins is not equal to the number of labels
-#     # assign label from the lowest to the highest
-#     if num_bins != len(labels):
-#         selected_labels = select_labels(labels, num_bins, label_type)
-#     else:
-#         selected_labels = labels
-
-#     qcut_labels = pd.qcut(data_series, q, duplicates='drop', labels=selected_labels)
-#     qcut_intervals = pd.qcut(data_series, q, duplicates='drop')
-
-#     # return quantile criteria
-#     interval_dict = {}
-#     for i, interval in enumerate(qcut_intervals.cat.categories):
-#         interval_dict[f"({interval.left}, {interval.right}]"] = selected_labels[i]
-
-#     return qcut_labels, interval_dict
 
 
 def safe_qcut(
@@ -169,6 +123,54 @@ def process_rfm(
     return result
 
 
-def process_score(series, q, label_type):
-    res, criteria = safe_qcut(series, q, label_type)
+def process_rfm_with_score(
+    df: pd.DataFrame,
+    in_customer_col: str,
+    in_monetary_col: str,
+    in_date_col: str,
+    r_score_func: Callable[[pd.Series[int | float]], tuple[pd.Series[int], dict[str, int]]],
+    f_score_func: Callable[[pd.Series[int | float]], tuple[pd.Series[int], dict[str, int]]],
+    m_score_func: Callable[[pd.Series[int | float]], tuple[pd.Series[int], dict[str, int]]],
+    recency_last_date: datetime.datetime | None = None,
+    out_customer_col: str = 'customer_id',
+    out_recency_col: str = 'recency',
+    out_frequency_col: str = 'frequency',
+    out_monetary_col: str = 'monetary',
+) -> tuple[pd.DataFrame, dict]:
+
+    result = process_rfm(
+        df,
+        in_customer_col,
+        in_monetary_col,
+        in_date_col,
+        recency_last_date,
+        out_customer_col,
+        out_recency_col,
+        out_frequency_col,
+        out_monetary_col,
+    )
+
+    result[out_recency_col + '_score'], recency_criteria = r_score_func(result[out_recency_col])
+    result[out_frequency_col + '_score'], frequency_criteria = f_score_func(
+        result[out_frequency_col]
+    )
+    result[out_monetary_col + '_score'], monetary_criteria = m_score_func(result[out_monetary_col])
+
+    result['rfm_score'] = (
+        result[out_recency_col + '_score'].astype(str)
+        + result[out_frequency_col + '_score'].astype(str)
+        + result[out_monetary_col + '_score'].astype(str)
+    )
+
+    criteria = {
+        'recency': recency_criteria,
+        'frequency': frequency_criteria,
+        'monetary': monetary_criteria,
+    }
+
+    return result, criteria
+
+
+def process_score(series, q, label_type, unique=True):
+    res, criteria = safe_qcut(series, q, label_type, unique=unique)
     return res.apply(lambda x: criteria[str(x)]), criteria
