@@ -174,3 +174,26 @@ def process_rfm_with_score(
 def process_score(series, q, label_type, unique=True):
     res, criteria = safe_qcut(series, q, label_type, unique=unique)
     return res.apply(lambda x: criteria[str(x)]), criteria
+
+
+if __name__ == "__main__":
+
+    # suppose we have a dataset with the following columns
+    # data are joined by member table and order(receipt) table
+    df = pd.DataFrame({'member_id': [], 'order_total': [], 'order_date': []})
+
+    q = 5
+
+    asc_process_func = lambda series: process_score(series, q, 'asc', unique=True)
+    desc_process_func = lambda series: process_score(series, q, 'desc', unique=True)
+
+    rfm_df, cri = process_rfm_with_score(
+        df,
+        in_customer_col='member_id',
+        in_monetary_col='order_total',
+        in_date_col='order_date',
+        r_score_func=desc_process_func,
+        f_score_func=asc_process_func,
+        m_score_func=asc_process_func,
+        recency_last_date=None,
+    )
